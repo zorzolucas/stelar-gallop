@@ -1,6 +1,6 @@
 # Galope Estelar — Game Design Document
 
-> Nome provisório. Versão 0.1 — 2026-11-12.
+> Nome provisório. Versão 0.2 — 2026-11-12. Na v0.2 entrou o [calendário da carreira](calendario.md).
 > Valores marcados com **(inicial)** são pontos de partida para balanceamento, não decisões finais.
 
 ## 1. Visão geral
@@ -102,9 +102,12 @@ Não há raridade nem estrelas de personagem: todas as garotas valem o mesmo.
 
 ### 4.1 Estrutura
 
-- **48 turnos**: 2 anos de jogo, 1 turno = 1 semana, com férias de verão.
-- Uma **corrida grande** no fim de cada ano.
-- **~4 objetivos** (ex.: "ficar no top 3 na corrida X"). Se falhar um, **a carreira acaba ali**, mas a garota ainda pode ser salva como estava.
+- **48 turnos**: 2 anos de jogo, 1 turno = meio mês (Início e Fim de cada mês). O ano vai de março a fevereiro.
+- **Férias de verão** em janeiro (turnos 21–22 e 45–46): acampamento sem corridas, com treino reforçado.
+- Um **Grande Prêmio** no fim de cada ano (turnos 24 e 48).
+- **5 objetivos**, sempre na casa da garota (melhor distância e piso). Se falhar um, **a carreira acaba ali**, mas a garota ainda pode ser salva como estava.
+- Corridas têm **categorias** (Estreia, Aberta, Prata, Ouro, Grande Prêmio). As mais altas pedem **fama** para entrar.
+- O detalhe está no [calendário](calendario.md).
 
 ### 4.2 Ações por turno
 
@@ -113,7 +116,7 @@ Não há raridade nem estrelas de personagem: todas as garotas valem o mesmo.
 | **Treinar** | Escolhe um dos 5 treinos, ganha atributos e gasta energia |
 | **Descansar** | Recupera energia |
 | **Sair** | Recupera humor e pode gerar encontro |
-| **Correr** | Corrida opcional: dá moeda, pontos de habilidade e fama |
+| **Correr** | Corrida opcional: dá moeda, pontos de habilidade e fama ([calendário](calendario.md) §4–5) |
 | **Enfermaria** | Cura lesão (só aparece quando ela está lesionada) |
 
 ### 4.3 Treinos
@@ -138,6 +141,7 @@ Não há raridade nem estrelas de personagem: todas as garotas valem o mesmo.
 - Energia vai de **0 a 100**.
 - Abaixo de um limite (inicial: 40), a chance de **falha** cresce conforme a energia cai.
 - Uma falha faz perder atributo e humor, com chance de **lesão leve**.
+- Correr gasta energia (inicial: 15).
 
 ### 4.5 Lesão
 
@@ -243,7 +247,7 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - 1 carreira completa de 48 turnos.
 - 5 atributos, 5 treinos, energia, humor, falha e lesão.
 - Encontros genéricos + 2 ou 3 únicos por garota.
-- ~5 corridas, simulação em 4 fases, visão top-down.
+- Calendário completo: Estreia e 2 Grandes Prêmios escritos à mão, opcionais geradas por modelo ([calendário](calendario.md) §9). Simulação em 4 fases, visão top-down.
 - Pool semanal com garantia e vínculo.
 - Arte provisória (formas e retratos placeholder).
 
@@ -269,9 +273,11 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - Custo da tiragem, valor de N da garantia e moeda por fonte.
 - Limite de energia para falha e chance de lesão.
 - Lista de habilidades genéricas e seus gatilhos.
-- Calendário de corridas e objetivos da carreira.
+- Corrida em nível baixo (150–300): Fechadora forte na Sprint e Ponteira na Longa ([calendário](calendario.md) §8).
+- Força das NPCs por categoria, fama por corrida e curva esperada de atributos ([calendário](calendario.md) §2 e §5).
 
 ## 12. Documentos relacionados
 
 - [Elenco](elenco.md): as 6 garotas do MVP com eventos, 2 rivais e o elenco completo de 48.
+- [Calendário da carreira](calendario.md): turnos, categorias de corrida, objetivos, fama e férias.
 - [Fórmula da corrida](corrida.md): fases, velocidade, fôlego, bloqueio, habilidades e calibração.
