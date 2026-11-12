@@ -1,6 +1,6 @@
 # Galope Estelar — Game Design Document
 
-> Nome provisório. Versão 0.2 — 2026-11-12. Na v0.2 entrou o [calendário da carreira](calendario.md).
+> Nome provisório. Versão 0.2 — 2026-11-12. Na v0.2 entrou o [calendário da carreira](calendario.md), com mapa de rotas e amuletos.
 > Valores marcados com **(inicial)** são pontos de partida para balanceamento, não decisões finais.
 
 ## 1. Visão geral
@@ -12,6 +12,7 @@
 2. **Treino é dilema.** Cada turno troca energia e humor por atributos.
 3. **A corrida é o resultado.** O jogador não controla a corrida, só assiste ao que construiu.
 4. **Colecionar sem pagar.** Não há dinheiro real. A pool semanal usa só moeda do jogo.
+5. **Cada carreira é diferente.** Entre os objetivos, o caminho é um mapa sorteado, e os amuletos mudam a build.
 
 **Plataforma:** PC (Windows), single-player, offline.
 **Motor:** Godot 4, GDScript.
@@ -105,7 +106,10 @@ Não há raridade nem estrelas de personagem: todas as garotas valem o mesmo.
 - **48 turnos**: 2 anos de jogo, 1 turno = meio mês (Início e Fim de cada mês). O ano vai de março a fevereiro.
 - **Férias de verão** em janeiro (turnos 21–22 e 45–46): acampamento sem corridas, com treino reforçado.
 - Um **Grande Prêmio** no fim de cada ano (turnos 24 e 48).
-- **5 objetivos**, sempre na casa da garota (melhor distância e piso). Se falhar um, **a carreira acaba ali**, mas a garota ainda pode ser salva como estava.
+- **5 objetivos**, sempre na casa da garota (melhor distância e piso), nos mesmos turnos em toda carreira. Se falhar um, **a carreira acaba ali**, mas a garota ainda pode ser salva como estava.
+- **Calendário roguelike:** entre um objetivo e outro, o jogador escolhe uma rota num **mapa sorteado**. Cada nó dura 1 mês e muda o contexto (treino focado, circuito de corridas, festival, recuperação, biblioteca, desafio, mistério). Corridas opcionais só aparecem nos nós de circuito.
+- **Amuletos:** cada objetivo cumprido dá 1 amuleto (escolha entre 3), um modificador que vale até o fim da carreira. Não passam para a garota salva.
+- Uma **semente** por carreira guarda todos os sorteios: recarregar o save e repetir a ação dá o mesmo resultado.
 - Corridas têm **categorias** (Estreia, Aberta, Prata, Ouro, Grande Prêmio). As mais altas pedem **fama** para entrar.
 - O detalhe está no [calendário](calendario.md).
 
@@ -116,7 +120,7 @@ Não há raridade nem estrelas de personagem: todas as garotas valem o mesmo.
 | **Treinar** | Escolhe um dos 5 treinos, ganha atributos e gasta energia |
 | **Descansar** | Recupera energia |
 | **Sair** | Recupera humor e pode gerar encontro |
-| **Correr** | Corrida opcional: dá moeda, pontos de habilidade e fama ([calendário](calendario.md) §4–5) |
+| **Correr** | Corrida opcional (só em nós de circuito): dá moeda, pontos de habilidade e fama ([calendário](calendario.md) §7) |
 | **Enfermaria** | Cura lesão (só aparece quando ela está lesionada) |
 
 ### 4.3 Treinos
@@ -247,7 +251,7 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - 1 carreira completa de 48 turnos.
 - 5 atributos, 5 treinos, energia, humor, falha e lesão.
 - Encontros genéricos + 2 ou 3 únicos por garota.
-- Calendário completo: Estreia e 2 Grandes Prêmios escritos à mão, opcionais geradas por modelo ([calendário](calendario.md) §9). Simulação em 4 fases, visão top-down.
+- Calendário completo com mapa de rotas, 7 tipos de nó, 6 eventos de Mistério e ~15 amuletos. Estreia e 2 Grandes Prêmios escritos à mão, opcionais geradas por modelo ([calendário](calendario.md) §11). Simulação em 4 fases, visão top-down.
 - Pool semanal com garantia e vínculo.
 - Arte provisória (formas e retratos placeholder).
 
@@ -264,6 +268,7 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - Dados das garotas, habilidades, eventos e corridas ficam em **arquivos de dados** (`.tres` ou JSON), não espalhados pelo código.
 - Textos em arquivos de tradução do Godot (CSV/PO), em PT-BR.
 - **Save automático a cada turno**, em um único slot.
+- Todo sorteio da carreira sai de `hash(semente, turno, contexto)`, com fluxos separados para mapa, treino, encontros e corrida ([calendário](calendario.md) §6).
 - A simulação da corrida não depende da tela, para poder rodar headless em testes e balanceamento.
 
 ## 11. Pendências de balanceamento
@@ -273,11 +278,12 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - Custo da tiragem, valor de N da garantia e moeda por fonte.
 - Limite de energia para falha e chance de lesão.
 - Lista de habilidades genéricas e seus gatilhos.
-- Corrida em nível baixo (150–300): Fechadora forte na Sprint e Ponteira na Longa ([calendário](calendario.md) §8).
+- Corrida em nível baixo (150–300): Fechadora forte na Sprint e Ponteira na Longa ([calendário](calendario.md) §10).
+- Pesos do sorteio do mapa, força dos amuletos e do Desafio.
 - Força das NPCs por categoria, fama por corrida e curva esperada de atributos ([calendário](calendario.md) §2 e §5).
 
 ## 12. Documentos relacionados
 
 - [Elenco](elenco.md): as 6 garotas do MVP com eventos, 2 rivais e o elenco completo de 48.
-- [Calendário da carreira](calendario.md): turnos, categorias de corrida, objetivos, fama e férias.
+- [Calendário da carreira](calendario.md): turnos, objetivos, mapa de rotas, amuletos, semente, fama e férias.
 - [Fórmula da corrida](corrida.md): fases, velocidade, fôlego, bloqueio, habilidades e calibração.
