@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galope Estelar — Visualizador da Corrida</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+  <h1>Galope Estelar <small>visualizador da corrida</small></h1>
+  <button id="tema" type="button" title="Alternar tema claro/escuro">◐ Tema</button>
+</header>
+
+<main>
+  <section class="painel" id="config">
+    <h2>Corrida</h2>
+    <div class="linha">
+      <label>Distância
+        <select id="dist">
+          <option value="0">Sprint 1200 m</option>
+          <option value="1">Milha 1600 m</option>
+          <option value="2">Média 2000 m</option>
+          <option value="3">Longa 3200 m</option>
+        </select>
+      </label>
+      <label>Piso
+        <select id="piso">
+          <option value="0">Grama</option>
+          <option value="1">Terra</option>
+        </select>
+      </label>
+      <button id="casa" type="button">Casa</button>
+      <button id="sortear" type="button" title="Sorteia garotas do elenco todo (mesma quantidade, ou 6)">🎲 Sortear</button>
+    </div>
+
+    <h3>Corredoras <span id="contagem"></span></h3>
+    <table id="campo">
+      <thead><tr><th>Garota</th><th>Apt.</th><th>Humor</th><th>Nível</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="linha">
+      <select id="addSel" aria-label="Garota para adicionar"></select>
+      <button id="add" type="button">Adicionar</button>
+    </div>
+
+    <h3>Rodar</h3>
+    <div class="linha">
+      <label>Semente <input id="semente" type="number" value="1" step="1"></label>
+      <button id="novaSemente" type="button" title="Semente aleatória">🎲</button>
+      <button id="iniciar" type="button" class="primario">▶ Correr</button>
+    </div>
+    <div class="linha">
+      <label>Lote: corridas <input id="loteN" type="number" value="800" min="1" step="100"></label>
+      <button id="lote" type="button">Rodar lote</button>
+    </div>
+  </section>
+
+  <section class="painel" id="palco">
+    <div class="topo">
+      <span id="fase">—</span>
+      <span id="relogio">0,0 s</span>
+      <div class="vel" role="group" aria-label="Velocidade">
+        <button type="button" data-vel="1" class="ativo">1x</button>
+        <button type="button" data-vel="2">2x</button>
+        <button type="button" data-vel="4">4x</button>
+        <button type="button" id="pular">Pular ⏭</button>
+      </div>
+    </div>
+    <canvas id="pista" width="800" height="440"></canvas>
+    <div id="avisos" aria-live="polite"></div>
+    <div class="legenda">
+      <span><i class="pon"></i>Ponteira</span><span><i class="per"></i>Perseguidora</span>
+      <span><i class="arr"></i>Arrancadora</span><span><i class="fec"></i>Fechadora</span>
+    </div>
+  </section>
+
+  <section class="painel" id="lado">
+    <h2 id="ladoTitulo">Ranking</h2>
+    <ol id="ranking"></ol>
+    <div id="resultado" hidden></div>
+  </section>
+
+  <section class="painel" id="logPainel">
+    <div class="topo"><h2>Log de corridas</h2><button id="limparLog" type="button">Limpar</button></div>
+    <ol id="log" reversed></ol>
+    <p id="logVazio" class="sutil">Nenhuma corrida ainda.</p>
+  </section>
+</main>
+
+<script src="garotas.js"></script>
+<script src="sim.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
