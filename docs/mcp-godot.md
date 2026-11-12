@@ -13,7 +13,20 @@ O servidor roda **na máquina onde o Godot está instalado** (o PC Windows), nã
 - Node.js 18 ou mais novo (`node -v`)
 - Claude Code rodando nesta pasta do repositório
 
-## Instalação (Windows)
+## Passo 0: instalar o Godot 4 (Windows)
+
+Se o Godot ainda não está na máquina:
+
+- **Opção A, manual:** baixe a versão estável mais recente do Godot 4 (a padrão,
+  não a .NET) em <https://godotengine.org/download/windows/>. É um `.zip` com um
+  `.exe` portátil. Extraia numa pasta fixa, por exemplo `C:\Tools\Godot\`.
+- **Opção B, winget:** `winget install GodotEngine.GodotEngine`. Depois descubra o
+  caminho do executável com `where.exe godot` ou no atalho do menu Iniciar.
+
+Use sempre a mesma versão 4.x em todas as máquinas do projeto, porque o Godot
+atualiza o formato dos arquivos `.tscn`/`.tres` ao salvar.
+
+## Instalação do MCP (Windows)
 
 1. Defina a variável `GODOT_PATH` apontando para o executável do Godot (uma vez só):
 
