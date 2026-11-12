@@ -1,6 +1,7 @@
 # Galope Estelar — Calendário da Carreira
 
-> Versão 0.2 — 2026-11-12. Complementa o [GDD](GDD.md) §4.
+> Versão 0.3 — 2026-11-12. Complementa o [GDD](GDD.md) §4.
+> Na v0.3 entraram o clima do mês (§4.4), os objetivos sorteados (§3.2) e a magnitude (§10).
 > Na v0.2 o calendário virou **roguelike**: entre os objetivos, cada carreira sorteia um mapa de rotas (§4), objetivos cumpridos dão amuletos (§5) e uma semente fixa guarda os sorteios (§6).
 > Valores marcados com **(inicial)** são pontos de partida para balanceamento.
 
@@ -43,14 +44,14 @@ Uma jogadora que treina bem chega acima disso, e uma que descansa demais ou se l
 
 ## 3. Objetivos
 
-São **5 objetivos**, sempre na **casa** da garota (sua melhor distância e piso, ver [elenco](elenco.md)). Falhou um, a carreira acaba ali, mas a garota pode ser salva como estava (GDD §4.8).
+São **5 objetivos**, quase sempre na **casa** da garota (sua melhor distância e piso, ver [elenco](elenco.md)). Falhou um, a carreira acaba ali, mas a garota pode ser salva como estava (GDD §4.8).
 
 | # | Turno | Data | Corrida | Meta |
 |---|---|---|---|---|
 | 1 | 4 | Ano 1 · Abr · Fim | **Estreia** na casa | Top 5 |
-| 2 | 12 | Ano 1 · Ago · Fim | **Aberta** na casa | Top 3 |
+| 2 | 12 | Ano 1 · Ago · Fim | **Aberta** na casa (sorteado, §3.2) | Top 3 |
 | 3 | 24 | Ano 1 · Fev · Fim | **Grande Prêmio** do ano 1 | Top 5 |
-| 4 | 36 | Ano 2 · Ago · Fim | **Ouro** na casa | Top 3 (precisa de 1500 de fama para entrar) |
+| 4 | 36 | Ano 2 · Ago · Fim | **Ouro** na casa (sorteado, §3.2) | Top 3 (precisa de 1500 de fama para entrar) |
 | 5 | 48 | Ano 2 · Fev · Fim | **Grande Prêmio** do ano 2 | Top 3 |
 
 - O **objetivo 4** é o que dá sentido às corridas opcionais: sem passar por Circuitos, ela não chega a 1500 de fama até o turno 36. A tela de objetivos avisa quanto falta.
@@ -68,6 +69,39 @@ No turno do Grande Prêmio acontecem **8 corridas ao mesmo tempo**, uma por casa
 | Outras | Uma NPC "campeã da casa" gerada (sem encontros no MVP) |
 
 Distâncias do Grande Prêmio (inicial): Sprint 1200 m · Milha 1600 m · Média 2400 m · Longa 3200 m.
+
+### 3.2 Objetivos sorteados
+
+Os objetivos 1, 3 e 5 são sempre os mesmos (Estreia e os dois Grandes Prêmios). Os objetivos **2 e 4 são sorteados** pela semente, entre os candidatos abaixo. O objetivo sorteado aparece junto com o mapa no começo do trecho, para o jogador planejar a rota em volta dele.
+
+- **"Casa"** é a melhor distância e piso da garota. **"Vizinha"** é a distância ao lado da casa, onde ela é Boa (GDD §3.3).
+- Cada candidato tem uma **dificuldade**. Os difíceis pagam mais: o amuleto daquele objetivo vem como escolha entre **4** em vez de 3, com pelo menos 1 incomum ou raro.
+- O **padrão** é o objetivo da tabela da §3. Ele continua na lista.
+
+**Objetivo 2** (até o turno 12)
+
+| Candidato | Meta | Dificuldade |
+|---|---|---|
+| Padrão | Top 3 numa Aberta na casa (turno 12) | Normal |
+| Fora de casa | Top 3 numa Aberta na **distância vizinha** (turno 12) | Normal |
+| Outro piso | Top 5 numa Aberta na casa, **no outro piso** (turno 12) | Normal |
+| Maratona | **Duas** corridas com top 5 até o turno 12 (o turno 12 vira uma Aberta livre) | Normal |
+| Vitória | **Vencer** uma Aberta na casa (turno 12) | Difícil |
+
+**Objetivo 4** (até o turno 36). Em todos, a garota precisa ter **1500 de fama** no turno 36, então os Circuitos continuam importando.
+
+| Candidato | Meta | Dificuldade |
+|---|---|---|
+| Padrão | Top 3 numa Ouro na casa (turno 36) | Normal |
+| Fora de casa | Top 5 numa Ouro na **distância vizinha** (turno 36) | Normal |
+| Dominar a Prata | **Vencer** uma Prata na casa (turno 36) | Normal |
+| Caçar a elite | Top 3 num **Desafio** do trecho 3 + top 5 numa Ouro na casa (turno 36). O trecho 3 garante 1 Desafio em todo caminho. | Difícil |
+| Outro piso | Top 3 numa Ouro na casa, **no outro piso** (turno 36) | Difícil |
+
+Regras:
+- O sorteio pesa 2 para cada candidato Normal e 1 para cada Difícil.
+- "Outro piso" não sai para garotas com o outro piso Ruim (ex.: Capela Rosilha), porque o multiplicador ×0,90 deixa o objetivo injusto.
+- Na Magnitude 3 ou mais (§10), só saem candidatos Difíceis.
 
 ## 4. Mapa de rotas
 
@@ -119,6 +153,36 @@ Regras do sorteio:
 
 No MVP: **6 eventos de Mistério**.
 
+### 4.4 Clima do mês
+
+Cada mês tem um **clima**, sorteado pela semente junto com o mapa. O ícone aparece em cada linha do mapa, então o clima também entra no planejamento da rota.
+
+O ano segue as estações do hemisfério sul: **outono** (mar–mai), **inverno** (jun–ago), **primavera** (set–nov) e **verão** (dez–fev).
+
+| Clima | Treino (inicial) | Corrida (inicial) | Outono | Inverno | Primavera | Verão |
+|---|---|---|---|---|---|---|
+| **Tempo bom** | — | — | 50% | 45% | 50% | 40% |
+| **Chuva** | Treinos de Velocidade rendem −10%. Treino de Poder conta 1 nível acima. | Aceleração −15% e bloqueio +50% para todas. O Poder vale mais. | 20% | 10% | 25% | 30% |
+| **Calor** | Todo treino gasta +5 de energia. | Fôlego −2% para todas. A Estamina vale mais. | 5% | — | 10% | 25% |
+| **Frio** | Descanso recupera −10%. Treino de Determinação conta 1 nível acima. | — | 10% | 30% | — | — |
+| **Vento** | Treino de Inteligência rende +10%. | — (efeito na corrida fica para depois, ver abaixo) | 15% | 10% | 10% | — |
+| **Noite de estrelas** | Encontros dão +50% de afinidade e o humor sobe 1 nível no início do mês. | — | — | 5% | 5% | 5% |
+
+- O clima vale para **as corridas daquele mês** e para os dois turnos de treino.
+- Os objetivos também pegam o clima do mês. O clima dos Grandes Prêmios (fevereiro, verão) é sorteado como os outros.
+- **Férias** sempre têm Tempo bom ou Calor.
+- Amuletos podem mexer no clima (ex.: *Capa de Chuva*: a chuva não tira ganho de treino).
+
+**Teste no simulador** (300 corridas por célula, nível 600). Chuva e calor afetam todas as corredoras igual, então não favorecem ninguém diretamente. O que muda é **quanto vale cada atributo**:
+
+| Clima | Efeito medido |
+|---|---|
+| Chuva | +200 de Poder em 1200 m: de 26% para 29% de vitória. Fora isso, quase igual ao tempo bom. É um efeito sutil, como planejado. |
+| Calor (fôlego −8%) | Na Longa (3200 m), +200 de Estamina foi de 22% para **56%** e a Ponteira venceu 47%. Forte demais. |
+| Calor (fôlego −2%) | Na Longa, +200 de Estamina vai para 28% e a Ponteira fica em 46% (no tempo bom são 41%). Nas outras distâncias não muda nada. |
+
+Por isso o calor ficou em **−2%** de fôlego. Ainda assim, ele empurra a Ponteira na Longa, que já é o ponto fraco do balanço (§11 e [corrida.md](corrida.md) §8). O **vento** ficaria com um efeito de estilo (quem vai na frente gasta mais fôlego, quem vem atrás pega vácuo), mas isso precisa de uma regra nova no simulador e fica para depois do MVP.
+
 ## 5. Amuletos
 
 Amuletos são modificadores que valem **até o fim da carreira**. Eles criam "builds" diferentes a cada carreira.
@@ -165,7 +229,7 @@ Cada carreira concluída (chegando ao objetivo 5, vencendo ou não) **libera nov
 - Cada carreira tem uma **semente** sorteada no turno 1.
 - O mapa de todos os trechos sai da semente logo no início (o jogador só vê o trecho atual).
 - Os sorteios usam fluxos separados, cada um calculado por `hash(semente, turno, contexto)`:
-  - **mapa** e **amuletos oferecidos**;
+  - **mapa**, **clima**, **objetivos sorteados** e **amuletos oferecidos**;
   - **treino** (falha, lesão), com a ação escolhida no contexto;
   - **encontros** e **Mistério**;
   - **corrida**, com o id da corrida no contexto.
@@ -235,7 +299,40 @@ Turnos **21–22** (ano 1) e **45–46** (ano 2), em janeiro. É um nó fixo no 
 | 47 | Véspera | Encontro com a rival. |
 | **48** | Objetivo 5 | **Grande Prêmio** do ano 2 (top 3). Fim da carreira. |
 
-## 10. Corrida em nível baixo
+## 10. Magnitude (dificuldade crescente)
+
+Na astronomia, a **magnitude** mede o brilho de uma estrela. Aqui ela é o nível de dificuldade de uma carreira, de **0 a 5**.
+
+- A magnitude é **por garota**. No começo da carreira, o jogador escolhe qualquer magnitude até a **maior liberada** para aquela garota.
+- **Liberar:** terminar uma carreira **vencendo o Grande Prêmio do ano 2** na magnitude M libera a magnitude M+1 para aquela garota.
+- Os efeitos se **acumulam**: a Magnitude 3 tem tudo da 1 e da 2.
+
+| Magnitude | O que muda (inicial) |
+|---|---|
+| **0** | Normal. |
+| **1** | NPCs +5% de força. |
+| **2** | A carreira começa com **1 maldição** sorteada (amuleto negativo, que não ocupa vaga). |
+| **3** | Os objetivos 2 e 4 só sorteiam candidatos **Difíceis** (§3.2). |
+| **4** | NPCs +10% no total e rivais com nome +25% (em vez de +15%). |
+| **5** | **2 maldições**, e cada trecho tem 1 nó de Recuperação a menos no sorteio. |
+
+**Maldições** (exemplos, inicial)
+
+| Maldição | Efeito |
+|---|---|
+| Ferradura Solta | 5% de chance de falha em todo treino, mesmo com energia cheia |
+| Torcida Exigente | Fama −20% em toda corrida |
+| Insônia | Descanso recupera −15% |
+| Nuvem Carregada | Chuva sai com o dobro da chance |
+| Má Fama | O primeiro encontro de cada trecho é sempre o pior resultado possível |
+
+**Recompensas**
+- **Moeda** no fim da carreira: +20% por nível de magnitude.
+- **Amuletos e eventos de Mistério** exclusivos, liberados ao vencer a primeira carreira em cada magnitude.
+- Uma **estrela na ficha** da garota salva mostra a maior magnitude vencida com ela. É só visual.
+- A magnitude **não deixa a garota salva mais forte**. O limite de atributos continua vindo só do vínculo (GDD §3.5). Assim o circuito não vira obrigação de jogar no difícil.
+
+## 11. Corrida em nível baixo
 
 As primeiras corridas (Estreia e Aberta) acontecem com atributos entre 150 e 300. O simulador só tinha sido calibrado de 400 para cima ([corrida.md](corrida.md) §8.1). Um teste rápido (300 corridas, 3 de cada estilo, atributos iguais) mostra que os desvios do nível baixo continuam:
 
@@ -252,10 +349,11 @@ No começo da carreira, a **Fechadora** é forte na Sprint e a **Ponteira** é f
 
 Fica como pendência de balanceamento.
 
-## 11. Escopo do MVP
+## 12. Escopo do MVP
 
 **Entra**
-- O calendário completo de 48 turnos, com os 5 objetivos fixos.
+- O calendário completo de 48 turnos, com os objetivos 1, 3 e 5 fixos e os objetivos 2 e 4 sorteados (§3.2).
+- **Clima do mês** com 6 climas (§4.4). Só chuva e calor mexem na corrida.
 - Mapa de rotas com os **7 tipos de nó** e as regras de sorteio da §4.2.
 - **6 eventos de Mistério** e **~15 amuletos**.
 - Semente por carreira com fluxos separados (§6).
@@ -263,6 +361,5 @@ Fica como pendência de balanceamento.
 - Rivais com nome só nas casas da tabela §3.1.
 
 **Fica para depois**
-- **Clima do mês:** cada mês sorteia uma condição (chuva pesa a terra, calor gasta mais energia).
-- **Objetivos 2 e 4 sorteados** de uma lista de candidatos.
-- **Dificuldade crescente:** depois de vencer o Grande Prêmio final com uma garota, a próxima carreira dela pode ser jogada num nível mais difícil, com NPCs mais fortes e um amuleto negativo.
+- **Magnitude** (§10). Ela só faz sentido depois que o jogador já venceu carreiras, e as maldições precisam de balanceamento próprio. A semente e os amuletos do MVP já deixam espaço para ela.
+- Efeito do **vento** na corrida (§4.4).

@@ -106,9 +106,11 @@ Não há raridade nem estrelas de personagem: todas as garotas valem o mesmo.
 - **48 turnos**: 2 anos de jogo, 1 turno = meio mês (Início e Fim de cada mês). O ano vai de março a fevereiro.
 - **Férias de verão** em janeiro (turnos 21–22 e 45–46): acampamento sem corridas, com treino reforçado.
 - Um **Grande Prêmio** no fim de cada ano (turnos 24 e 48).
-- **5 objetivos**, sempre na casa da garota (melhor distância e piso), nos mesmos turnos em toda carreira. Se falhar um, **a carreira acaba ali**, mas a garota ainda pode ser salva como estava.
+- **5 objetivos**, nos mesmos turnos em toda carreira, quase sempre na casa da garota (melhor distância e piso). Os objetivos 2 e 4 são **sorteados** de uma lista de candidatos. Se falhar um, **a carreira acaba ali**, mas a garota ainda pode ser salva como estava.
 - **Calendário roguelike:** entre um objetivo e outro, o jogador escolhe uma rota num **mapa sorteado**. Cada nó dura 1 mês e muda o contexto (treino focado, circuito de corridas, festival, recuperação, biblioteca, desafio, mistério). Corridas opcionais só aparecem nos nós de circuito.
 - **Amuletos:** cada objetivo cumprido dá 1 amuleto (escolha entre 3), um modificador que vale até o fim da carreira. Não passam para a garota salva.
+- **Clima do mês** (tempo bom, chuva, calor, frio, vento, noite de estrelas), seguindo as estações. Ele mexe no treino e, na chuva e no calor, na corrida.
+- **Magnitude** (0 a 5): dificuldade por garota, liberada vencendo o Grande Prêmio final. Fica para depois do MVP.
 - Uma **semente** por carreira guarda todos os sorteios: recarregar o save e repetir a ação dá o mesmo resultado.
 - Corridas têm **categorias** (Estreia, Aberta, Prata, Ouro, Grande Prêmio). As mais altas pedem **fama** para entrar.
 - O detalhe está no [calendário](calendario.md).
@@ -251,12 +253,13 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - 1 carreira completa de 48 turnos.
 - 5 atributos, 5 treinos, energia, humor, falha e lesão.
 - Encontros genéricos + 2 ou 3 únicos por garota.
-- Calendário completo com mapa de rotas, 7 tipos de nó, 6 eventos de Mistério e ~15 amuletos. Estreia e 2 Grandes Prêmios escritos à mão, opcionais geradas por modelo ([calendário](calendario.md) §11). Simulação em 4 fases, visão top-down.
+- Calendário completo com mapa de rotas, 7 tipos de nó, 6 eventos de Mistério e ~15 amuletos. Estreia e 2 Grandes Prêmios escritos à mão, opcionais geradas por modelo ([calendário](calendario.md) §12). Clima do mês e objetivos 2 e 4 sorteados. Simulação em 4 fases, visão top-down.
 - Pool semanal com garantia e vínculo.
 - Arte provisória (formas e retratos placeholder).
 
 **Fica para depois**
 - Mais garotas, mais corridas, circuito completo.
+- Magnitude (dificuldade crescente), ver [calendário](calendario.md) §10.
 - Retratos 2D finais com expressões (quem faz a arte ainda será decidido).
 - Visão lateral da corrida.
 - História principal.
@@ -278,12 +281,14 @@ Existe **uma única moeda**, sem moeda premium. Fontes:
 - Custo da tiragem, valor de N da garantia e moeda por fonte.
 - Limite de energia para falha e chance de lesão.
 - Lista de habilidades genéricas e seus gatilhos.
-- Corrida em nível baixo (150–300): Fechadora forte na Sprint e Ponteira na Longa ([calendário](calendario.md) §10).
+- Corrida em nível baixo (150–300): Fechadora forte na Sprint e Ponteira na Longa ([calendário](calendario.md) §11).
+- Calor na Longa favorece a Ponteira e a Estamina; vento ainda sem efeito na corrida ([calendário](calendario.md) §4.4).
+- Maldições e força das NPCs por magnitude.
 - Pesos do sorteio do mapa, força dos amuletos e do Desafio.
 - Força das NPCs por categoria, fama por corrida e curva esperada de atributos ([calendário](calendario.md) §2 e §5).
 
 ## 12. Documentos relacionados
 
 - [Elenco](elenco.md): as 6 garotas do MVP com eventos, 2 rivais e o elenco completo de 48.
-- [Calendário da carreira](calendario.md): turnos, objetivos, mapa de rotas, amuletos, semente, fama e férias.
+- [Calendário da carreira](calendario.md): turnos, objetivos, mapa de rotas, clima, amuletos, semente, magnitude, fama e férias.
 - [Fórmula da corrida](corrida.md): fases, velocidade, fôlego, bloqueio, habilidades e calibração.
