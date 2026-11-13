@@ -46,10 +46,26 @@ func _process(_delta: float) -> bool:
 			_salvar("3_antes_da_corrida")
 			main.mostrar_corrida()
 			main.tela.velocidade = 2.0
-		4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19:
+		4, 5, 6, 7, 9, 11, 13, 15, 17, 19:
 			pass
-		20:
+		8:
+			_salvar("4a_camera_auto")
+			main.tela._usar_camera(1)
+		10:
+			_salvar("4b_camera_acompanhar")
+			main.tela._usar_camera(2)
+		12:
+			_salvar("4c_camera_lateral")
+			main.tela._usar_camera(3)
+		14:
+			_salvar("4d_camera_frente")
+			main.tela._usar_camera(4)
+		16:
+			_salvar("4e_camera_aerea")
+			main.tela._usar_camera(0)
+		18:
 			_salvar("4_corrida")
+		20:
 			main.tela._pular()
 		21:
 			_salvar("5_chegada")

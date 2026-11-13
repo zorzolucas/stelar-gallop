@@ -1,12 +1,12 @@
 class_name TelaCorrida
 extends Control
-## Corrida top-down numa pista oval (GDD §5.4): ranking ao vivo, avisos de
-## habilidade e botões 1x / 2x / pular. O jogador só assiste.
+## Tela da corrida: vista 3D com troca de câmera (Corrida3D), minimapa, ranking ao vivo,
+## avisos de habilidade e botões 1x / 2x / pular. O jogador só assiste.
 
 signal terminou(posicao: int)
 
-## Passos de simulação (0,1 s) por segundo real em 1x. 40 = corrida 4x mais rápida que o tempo real.
-const PASSOS_1X := 40.0
+## Passos de simulação (0,1 s) por segundo real em 1x. 20 = corrida 2x mais rápida que o tempo real.
+const PASSOS_1X := 20.0
 const CORES := ["#c9a227", "#8e6cc9", "#c9568e", "#4fa3a5", "#b0764a", "#7f8fa6",
 				"#a3b14f", "#d07a4a", "#5c7fb8", "#9a5bb0", "#6aa86a"]
 
@@ -21,6 +21,11 @@ var avisos: Array = []   # [{idx, texto, vida}]
 var linhas: Array = []   # [ColorRect, Label] por posição do ranking
 
 var pista: Pista
+var mundo: Corrida3D
+var x_antes: Array = []   # posição de cada corredora no passo anterior (para interpolar)
+var botao_camera: Button
+var faixa_aviso: Label
+var aviso_vida := 0.0
 var ranking: VBoxContainer
 var info: Label
 var feed: VBoxContainer
@@ -32,6 +37,8 @@ func _init(d: Dictionary, cor: Color) -> void:
 	dados = d
 	cor_jogadora = cor
 	sim = SimCorrida.new(d.field, d.distancia)
+	for r in sim.rs:
+		x_antes.append(r.x)
 	var n := 0
 	for g in d.field:
 		if g.jogadora:
@@ -56,11 +63,44 @@ func _ready() -> void:
 
 	var meio := UI.hbox(16)
 	meio.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	pista = Pista.new()
-	pista.tela = self
-	pista.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pista.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	meio.add_child(pista)
+	var area := Control.new()
+	area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	area.clip_contents = true
+	var vista := SubViewportContainer.new()
+	vista.stretch = true
+	vista.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	area.add_child(vista)
+	var vp := SubViewport.new()
+	vp.msaa_3d = Viewport.MSAA_4X
+	vista.add_child(vp)
+	mundo = Corrida3D.new(cores, dados.field.map(func(g): return g.nome))
+	vp.add_child(mundo)
+	meio.add_child(area)
+	# por cima da vista 3D: câmeras e aviso de habilidade da jogadora
+	var sobre := Control.new()
+	sobre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	sobre.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	area.add_child(sobre)
+	var cams := UI.hbox(6)
+	cams.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	cams.position = Vector2(12, -52)
+	cams.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	botao_camera = UI.botao("", _proxima_camera, 16)
+	cams.add_child(UI.label("Câmera (C):", 16))
+	cams.add_child(botao_camera)
+	for m in Corrida3D.CAMERA_NOME.size():
+		var modo: int = m
+		cams.add_child(UI.botao(str(m + 1), func(): _usar_camera(modo), 16))
+	sobre.add_child(cams)
+	faixa_aviso = UI.label("", 26, UI.DESTAQUE)
+	faixa_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	faixa_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	faixa_aviso.position.y = 16
+	faixa_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	faixa_aviso.add_theme_constant_override("outline_size", 8)
+	faixa_aviso.add_theme_color_override("font_outline_color", Color.BLACK)
+	sobre.add_child(faixa_aviso)
 
 	var lado := UI.painel()
 	lado.custom_minimum_size.x = 300
@@ -70,7 +110,10 @@ func _ready() -> void:
 	lv.add_child(info)
 	ranking = UI.vbox(2)
 	lv.add_child(ranking)
-	lv.add_child(HSeparator.new())
+	pista = Pista.new()
+	pista.tela = self
+	pista.custom_minimum_size = Vector2(0, 130)
+	lv.add_child(pista)
 	lv.add_child(UI.label("Habilidades", 14, UI.SUAVE))
 	feed = UI.vbox(2)
 	lv.add_child(feed)
@@ -90,6 +133,8 @@ func _process(delta: float) -> void:
 		acumulado += delta * PASSOS_1X * velocidade
 		while acumulado >= 1.0 and not sim.done:
 			acumulado -= 1.0
+			for i in sim.rs.size():
+				x_antes[i] = sim.rs[i].x
 			_registrar(sim.step())
 		if sim.done:
 			_finalizar()
@@ -97,7 +142,47 @@ func _process(delta: float) -> void:
 	for a in avisos:
 		a.vida -= delta
 	avisos = avisos.filter(func(a): return a.vida > 0.0)
+	aviso_vida -= delta
+	faixa_aviso.modulate.a = clampf(aviso_vida, 0.0, 1.0)
+	_atualizar_3d(delta)
 	pista.queue_redraw()
+
+
+func _atualizar_3d(delta: float) -> void:
+	var xs := []
+	var vs := []
+	var lider := 0
+	for i in sim.rs.size():
+		var r: Dictionary = sim.rs[i]
+		var x: float = r.x if acabou else lerpf(x_antes[i], r.x, clampf(acumulado, 0.0, 1.0))
+		xs.append(minf(x, sim.D))
+		vs.append(0.0 if r.t >= 0.0 else r.v)
+		if r.x > sim.rs[lider].x:
+			lider = i
+	var fase := SimCorrida.fase(minf(sim.rs[lider].x, sim.D - 0.01), sim.D)
+	mundo.atualizar(xs, sim.D, vs, fase, lider, delta, sim.rs[0].t >= 0.0)
+	var nome: String = Corrida3D.CAMERA_NOME[mundo.modo]
+	if mundo.modo == Corrida3D.Camera.AUTO:
+		nome += " · " + Corrida3D.CAMERA_NOME[mundo.modo_efetivo]
+	botao_camera.text = nome
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	var k := event as InputEventKey
+	if k == null or not k.pressed or k.echo:
+		return
+	if k.keycode == KEY_C:
+		_proxima_camera()
+	elif k.keycode >= KEY_1 and k.keycode < KEY_1 + Corrida3D.CAMERA_NOME.size():
+		_usar_camera(k.keycode - KEY_1)
+
+
+func _proxima_camera() -> void:
+	mundo.proxima_camera()
+
+
+func _usar_camera(m: int) -> void:
+	mundo.modo = m as Corrida3D.Camera
 
 
 func _registrar(ev: Array) -> void:
@@ -108,6 +193,9 @@ func _registrar(ev: Array) -> void:
 		var cor := UI.DESTAQUE if g.jogadora else UI.SUAVE
 		if e.unica:
 			txt += " ★"
+		if g.jogadora:
+			faixa_aviso.text = "%s: %s%s" % [g.nome.split(" ")[0], e.nome, " ★" if e.unica else ""]
+			aviso_vida = 2.0
 		feed.add_child(UI.label(txt, 13, cor))
 		while feed.get_child_count() > 8:
 			var velho := feed.get_child(0)
@@ -177,90 +265,25 @@ func _atualizar_ranking() -> void:
 		l.add_theme_color_override("font_color", UI.DESTAQUE if g.jogadora else UI.TEXTO)
 
 
-## Desenho da pista oval e das corredoras.
+## Minimapa: a pista vista de cima, com um ponto por corredora.
 class Pista extends Control:
 	var tela: TelaCorrida
 
-	func _geom() -> Dictionary:
-		var m := 40.0
-		var w := size.x - 2.0 * m
-		var h := size.y - 2.0 * m
-		var raio := minf(h / 2.0, w / 3.0)
-		var reta := w - 2.0 * raio
-		return {"c": size / 2.0, "raio": raio, "reta": reta}
-
-	## Ponto na pista para a fração u da volta (0 = linha de chegada, sentido anti-horário
-	## na tela: reta de baixo da direita para a esquerda... aqui, da esquerda para a direita).
-	func ponto(u: float, deslocamento: float) -> Vector2:
-		var g := _geom()
-		var c: Vector2 = g.c
-		var raio: float = g.raio + deslocamento
-		var reta: float = g.reta
-		var perim: float = 2.0 * reta + 2.0 * PI * g.raio
-		var s: float = fposmod(u, 1.0) * perim
-		# começa no meio da reta de baixo, indo para a direita
-		var meia := reta / 2.0
-		if s < meia:
-			return c + Vector2(s, raio)
-		s -= meia
-		var arco: float = PI * g.raio
-		if s < arco:
-			var a: float = PI / 2.0 - s / g.raio
-			return c + Vector2(meia, 0) + Vector2(cos(a), sin(a)) * raio
-		s -= arco
-		if s < reta:
-			return c + Vector2(meia - s, -raio)
-		s -= reta
-		if s < arco:
-			var a: float = -PI / 2.0 - s / g.raio
-			return c + Vector2(-meia, 0) + Vector2(cos(a), sin(a)) * raio
-		s -= arco
-		return c + Vector2(-meia + s, raio)
-
 	func _draw() -> void:
-		var g := _geom()
-		var c: Vector2 = g.c
-		var meia: float = g.reta / 2.0
-		var largura := 70.0
-		# gramado da pista
-		var cor_pista := Color("#2f6b3a")
-		_estadio(c, meia, g.raio + largura / 2.0, cor_pista)
-		_estadio(c, meia, g.raio - largura / 2.0, UI.FUNDO.lightened(0.05))
-		# linha de chegada
-		var p1 := c + Vector2(0, g.raio - largura / 2.0)
-		draw_line(p1, p1 + Vector2(0, largura), Color.WHITE, 3.0)
-		# volta: a chegada fica na linha; a largada é recuada para que a distância feche nela
-		var escala := 1000.0  # metros por volta desenhada (menor = pelotão mais espalhado na tela)
+		var largura_m := PistaGeo.RETA + 2.0 * (PistaGeo.RAIO + PistaGeo.LARGURA)
+		var altura_m := 2.0 * (PistaGeo.RAIO + PistaGeo.LARGURA)
+		var esc := minf(size.x / largura_m, size.y / altura_m) * 0.95
+		var c := size / 2.0
+		var pts := PackedVector2Array()
+		for i in 121:
+			pts.append(c + PistaGeo.ponto(PistaGeo.PERIMETRO * i / 120.0, PistaGeo.LARGURA / 2.0) * esc)
+		draw_polyline(pts, Color("#2f6b3a"), maxf(3.0, PistaGeo.LARGURA * esc))
+		var chegada := PistaGeo.ponto(0.0, 0.0) * esc + c
+		draw_line(chegada, chegada + Vector2(0, PistaGeo.LARGURA * esc), Color.WHITE, 2.0)
 		var sim: SimCorrida = tela.sim
-		var ordem := sim.classificacao()
-		var pos_jog := Vector2.ZERO
-		for i in range(ordem.size() - 1, -1, -1):
-			var idx: int = ordem[i]
-			var r: Dictionary = sim.rs[idx]
-			var u := (minf(r.x, sim.D) - sim.D) / escala
-			var pos := ponto(u, -largura / 2.0 + 8.0 + float(idx % 6) * 10.0)
-			if tela.dados.field[idx].jogadora:
-				pos_jog = pos
-			else:
-				draw_circle(pos, 7.0, tela.cores[idx])
-		# a jogadora por cima de todas, com contorno e seta
-		draw_circle(pos_jog, 12.0, Color.WHITE)
-		draw_circle(pos_jog, 9.0, tela.cores[0])
-		var u_jog := (minf(sim.rs[0].x, sim.D) - sim.D) / escala
-		var ponta := ponto(u_jog, largura / 2.0 + 4.0)
-		var base := ponto(u_jog, largura / 2.0 + 18.0)
-		var lado := (ponta - base).orthogonal().normalized() * 7.0
-		draw_colored_polygon(PackedVector2Array([ponta, base + lado, base - lado]), UI.DESTAQUE)
-		for a in tela.avisos:
-			var r: Dictionary = sim.rs[a.idx]
-			var u := (minf(r.x, sim.D) - sim.D) / escala
-			var pos := ponto(u, -largura / 2.0 - 18.0) + Vector2(-80, 4)
-			var f := get_theme_default_font()
-			var cor := UI.DESTAQUE if tela.dados.field[a.idx].jogadora else Color(1, 1, 1, 0.75)
-			cor.a = clampf(a.vida, 0.0, 1.0)
-			draw_string(f, pos, a.texto, HORIZONTAL_ALIGNMENT_CENTER, 160, 13, cor)
-
-	func _estadio(c: Vector2, meia: float, raio: float, cor: Color) -> void:
-		draw_rect(Rect2(c.x - meia, c.y - raio, 2.0 * meia, 2.0 * raio), cor)
-		draw_circle(c + Vector2(meia, 0), raio, cor)
-		draw_circle(c - Vector2(meia, 0), raio, cor)
+		for i in range(sim.rs.size() - 1, -1, -1):
+			var s := PistaGeo.s_da_corrida(sim.rs[i].x, sim.D)
+			var p := c + PistaGeo.ponto(s, Corrida3D.faixa(i)) * esc
+			if i == 0:
+				draw_circle(p, 6.0, Color.WHITE)
+			draw_circle(p, 4.0, tela.cores[i])
