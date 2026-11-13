@@ -7,6 +7,14 @@
         "GODOT_PATH": "${GODOT_PATH}",
         "DEBUG": "false"
       }
+    },
+    "blender": {
+      "command": "cmd",
+      "args": ["/c", "uvx", "--python", "3.11", "mcp-for-blender@2.2.6"],
+      "env": {
+        "UV_PYTHON_PREFERENCE": "only-managed",
+        "DISABLE_TELEMETRY": "true"
+      }
     }
   }
 }
