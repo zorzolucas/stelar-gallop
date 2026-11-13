@@ -33,48 +33,58 @@ func _process(_delta: float) -> bool:
 			main.carreira.treinar("vel")
 			main.carreira.treinar("est")
 			main.carreira.treinar("pod")
-			main.mostrar_carreira(main.carreira.treinar("vel"))
+			main.carreira.treinar("vel")
+			main.carreira.afinidade["Antares Zaina"] = 35
+			main.carreira.duplas = {"pod": "Antares Zaina"}
+			for e in root.get_node("Dados").encontros.encontros:
+				if e.id == "lira_refeitorio":
+					main.carreira._abrir_encontro(e)
+			main.mostrar_carreira("Treino de Velocidade: +41 Vel, +15 Pod.")
 		2:
+			_salvar("2a_encontro")
+			main.mostrar_carreira(main.carreira.escolher(0))
+		3:
 			_salvar("2_carreira")
 			while main.carreira.corrida_do_turno().is_empty():
 				if main.carreira.energia < 45:
 					main.carreira.descansar()
 				else:
 					main.carreira.treinar(["vel", "est", "pod"][main.carreira.turno % 3])
+			main.carreira.encontro_pendente = {}
 			main.mostrar_carreira("")
-		3:
+		4:
 			_salvar("3_antes_da_corrida")
 			main.mostrar_corrida()
 			main.tela.velocidade = 2.0
-		4, 5, 6, 7, 9, 11, 13, 15, 17, 19:
+		5, 6, 7, 8, 10, 12, 14, 16, 18, 20:
 			pass
-		8:
+		9:
 			_salvar("4a_camera_auto")
 			main.tela._usar_camera(1)
-		10:
+		11:
 			_salvar("4b_camera_acompanhar")
 			main.tela._usar_camera(2)
-		12:
+		13:
 			_salvar("4c_camera_lateral")
 			main.tela._usar_camera(3)
-		14:
+		15:
 			_salvar("4d_camera_frente")
 			main.tela._usar_camera(4)
-		16:
+		17:
 			_salvar("4e_camera_aerea")
 			main.tela._usar_camera(0)
-		18:
+		19:
 			_salvar("4_corrida")
-		20:
-			main.tela._pular()
 		21:
+			main.tela._pular()
+		22:
 			_salvar("5_chegada")
 			main.tela._continuar()
-		22:
+		23:
 			_salvar("6_depois_da_corrida")
 			main.carreira.terminou = true
 			main.mostrar_carreira("Fim de teste.")
-		23:
+		24:
 			_salvar("7_fim")
 			return true
 	passo += 1

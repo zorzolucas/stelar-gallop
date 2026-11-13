@@ -11,20 +11,30 @@ const ATTR_CURTO := {"vel": "Vel", "est": "Est", "pod": "Pod", "det": "Det", "in
 
 var garotas: Array = []
 var iniciais: Array = []
+var rivais: Array = []
+var encontros: Dictionary = {}
 
 
 func _ready() -> void:
 	garotas = _ler_json("res://data/garotas.json")
 	iniciais = _ler_json("res://data/iniciais.json")
+	rivais = _ler_json("res://data/rivais.json")
+	encontros = _ler_json("res://data/encontros.json")
 
 
-func _ler_json(caminho: String) -> Array:
+func _ler_json(caminho: String) -> Variant:
 	var f := FileAccess.open(caminho, FileAccess.READ)
 	if f == null:
 		push_error("Não consegui abrir %s" % caminho)
-		return []
-	var dados = JSON.parse_string(f.get_as_text())
-	return dados if dados is Array else []
+		return null
+	return JSON.parse_string(f.get_as_text())
+
+
+func inicial(nome: String) -> Dictionary:
+	for i in iniciais:
+		if i.nome == nome:
+			return i
+	return {}
 
 
 func garota(nome: String) -> Dictionary:

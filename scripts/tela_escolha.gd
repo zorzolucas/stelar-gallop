@@ -3,12 +3,22 @@ extends Control
 ## Escolha de 1 entre 3 garotas iniciais (GDD §8).
 
 signal escolheu(inicial: Dictionary)
+signal continuar
 
 
 func _ready() -> void:
 	var v := UI.vbox(18)
 	v.add_child(UI.label("Galope Estelar", 40, UI.DESTAQUE))
-	v.add_child(UI.label("Escolha a garota que você vai treinar.", 20, UI.SUAVE))
+	var linha_topo := UI.hbox(12)
+	var sub := UI.label("Escolha a garota que você vai treinar.", 20, UI.SUAVE)
+	sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	linha_topo.add_child(sub)
+	var salvo := Carreira.carregar() if Carreira.tem_save() else null
+	if salvo:
+		var b := UI.botao("Continuar: %s, semana %d" % [salvo.nome, salvo.turno], func(): continuar.emit(), 18)
+		b.tooltip_text = "Começar uma nova carreira apaga a salva."
+		linha_topo.add_child(b)
+	v.add_child(linha_topo)
 	var linha := UI.hbox(18)
 	linha.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for ini in Dados.iniciais:

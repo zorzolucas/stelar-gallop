@@ -1,5 +1,6 @@
 extends Control
 ## Controla o fluxo do protótipo: escolha → carreira ⇄ corrida → fim.
+## Salva a carreira automaticamente a cada mudança de estado (GDD §10).
 
 var carreira: Carreira
 var tela: Control
@@ -24,6 +25,7 @@ func _trocar(nova: Control) -> void:
 func mostrar_escolha() -> void:
 	var t := TelaEscolha.new()
 	t.escolheu.connect(_comecar_carreira)
+	t.continuar.connect(_continuar_carreira)
 	_trocar(t)
 
 
@@ -32,7 +34,17 @@ func _comecar_carreira(ini: Dictionary) -> void:
 	mostrar_carreira("Começa a carreira de %s! 24 semanas até o Grande Prêmio Estelar." % carreira.nome)
 
 
+func _continuar_carreira() -> void:
+	carreira = Carreira.carregar()
+	if carreira == null:
+		Carreira.apagar_save()
+		mostrar_escolha()
+		return
+	mostrar_carreira("Carreira carregada. Bem-vinda de volta, %s!" % carreira.nome.split(" ")[0])
+
+
 func mostrar_carreira(msg: String = "") -> void:
+	carreira.salvar()
 	if carreira.terminou:
 		mostrar_fim(msg)
 		return
