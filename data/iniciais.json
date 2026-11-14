@@ -3,30 +3,84 @@
     "nome": "Lira Alazã",
     "apelido": "a chama da largada",
     "descricao": "Competitiva e barulhenta. Lidera desde a largada.",
-    "naturais": ["vel", "est"],
+    "naturais": [
+      "vel",
+      "est"
+    ],
     "unica": "chama",
     "cor": "#e8613a",
     "distancia": "milha",
-    "piso": "grama"
+    "piso": "grama",
+    "inicial": true
   },
   {
     "nome": "Nashira Tordilha",
     "apelido": "a estrategista",
     "descricao": "Calma e observadora. Corre logo atrás do grupo da frente.",
-    "naturais": ["int", "est"],
+    "naturais": [
+      "int",
+      "est"
+    ],
     "unica": "leitura",
     "cor": "#5b8def",
     "distancia": "media",
-    "piso": "grama"
+    "piso": "grama",
+    "inicial": true
   },
   {
     "nome": "Mira Pampa",
     "apelido": "a última a sair, a primeira a chegar",
     "descricao": "Paciente. Larga no fundo e faz um sprint brutal no final.",
-    "naturais": ["est", "pod"],
+    "naturais": [
+      "est",
+      "pod"
+    ],
     "unica": "vento",
     "cor": "#3fbf7f",
     "distancia": "longa",
-    "piso": "grama"
+    "piso": "grama",
+    "inicial": true
+  },
+  {
+    "nome": "Capela Rosilha",
+    "apelido": "a estrela do palco",
+    "descricao": "Carismática e vaidosa. Fica no meio do pelotão e acelera na reta.",
+    "naturais": [
+      "vel",
+      "pod"
+    ],
+    "unica": "holofote",
+    "cor": "#d6559b",
+    "distancia": "milha",
+    "piso": "grama",
+    "inicial": false
+  },
+  {
+    "nome": "Antares Zaina",
+    "apelido": "a pancada",
+    "descricao": "Direta e durona. Sai como um tiro na largada.",
+    "naturais": [
+      "pod",
+      "vel"
+    ],
+    "unica": "explosiva",
+    "cor": "#e0a13a",
+    "distancia": "sprint",
+    "piso": "grama",
+    "inicial": false
+  },
+  {
+    "nome": "Shaula Lobuna",
+    "apelido": "a sombra",
+    "descricao": "Sarcástica e teimosa. Nunca desiste no fim da corrida.",
+    "naturais": [
+      "det",
+      "est"
+    ],
+    "unica": "nunca",
+    "cor": "#7a6bb5",
+    "distancia": "longa",
+    "piso": "terra",
+    "inicial": false
   }
 ]

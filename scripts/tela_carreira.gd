@@ -38,7 +38,7 @@ func _painel_garota() -> Control:
 		var l := UI.label(Dados.ATTR_NOME[k], 15)
 		l.custom_minimum_size.x = 110
 		h.add_child(l)
-		h.add_child(UI.barra(c.attrs[k], Carreira.BAL.limite_attr, c.cor, 200))
+		h.add_child(UI.barra(c.attrs[k], c.limite, c.cor, 200))
 		h.add_child(UI.label("%d" % c.attrs[k], 15))
 		v.add_child(h)
 
@@ -139,7 +139,7 @@ func _painel_encontro(e: Dictionary) -> Control:
 	var topo := UI.hbox(12)
 	var outra: String = c.encontro_pendente.get("outra", "")
 	var quem: String = c.nome if e.garota != null else outra
-	var ini := Dados.inicial(quem)
+	var ini := Dados.config_carreira(quem)
 	topo.add_child(UI.retrato(quem, Color(ini.get("cor", "#b07cc6")), 64))
 	var tv := UI.vbox(2)
 	tv.add_child(UI.label("Encontro", 14, UI.SUAVE))

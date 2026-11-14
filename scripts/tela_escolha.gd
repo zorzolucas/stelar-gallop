@@ -1,28 +1,19 @@
 class_name TelaEscolha
 extends Control
-## Escolha de 1 entre 3 garotas iniciais (GDD §8).
+## Escolha da primeira garota, 1 entre 3 iniciais (GDD §8). Só aparece no começo do jogo.
 
 signal escolheu(inicial: Dictionary)
-signal continuar
 
 
 func _ready() -> void:
 	var v := UI.vbox(18)
 	v.add_child(UI.label("Galope Estelar", 40, UI.DESTAQUE))
-	var linha_topo := UI.hbox(12)
-	var sub := UI.label("Escolha a garota que você vai treinar.", 20, UI.SUAVE)
-	sub.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	linha_topo.add_child(sub)
-	var salvo := Carreira.carregar() if Carreira.tem_save() else null
-	if salvo:
-		var b := UI.botao("Continuar: %s, semana %d" % [salvo.nome, salvo.turno], func(): continuar.emit(), 18)
-		b.tooltip_text = "Começar uma nova carreira apaga a salva."
-		linha_topo.add_child(b)
-	v.add_child(linha_topo)
+	v.add_child(UI.label("Escolha sua primeira garota. As outras você conhece pela pool semanal.", 20, UI.SUAVE))
 	var linha := UI.hbox(18)
 	linha.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for ini in Dados.iniciais:
-		linha.add_child(_cartao(ini))
+		if ini.get("inicial", false):
+			linha.add_child(_cartao(ini))
 	v.add_child(linha)
 	add_child(UI.margem(v, 32))
 
