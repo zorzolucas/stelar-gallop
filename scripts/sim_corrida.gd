@@ -56,11 +56,18 @@ var t := 0.0
 var done := false
 var rs: Array = []
 var rng := RandomNumberGenerator.new()
+## Clima (calendario.md §4.4): chuva tira 15% da aceleração e aumenta o bloqueio em 50%;
+## calor tira 2% do fôlego. Os outros climas não mexem na corrida.
+var mult_acel := 1.0
+var mult_bloqueio := 1.0
 
 
 ## field: lista de Dictionary {nome, estilo, attrs: {vel..int}, mult, unica?}.
-func _init(field: Array, distancia: float, seed: int = 0) -> void:
+func _init(field: Array, distancia: float, seed: int = 0, clima: String = "") -> void:
 	D = distancia
+	if clima == "chuva":
+		mult_acel = 0.85
+		mult_bloqueio = 1.5
 	if seed == 0:
 		rng.randomize()
 	else:
@@ -72,7 +79,7 @@ func _init(field: Array, distancia: float, seed: int = 0) -> void:
 		var e := {}
 		for key in KEYS:
 			e[key] = float(g.attrs[key]) * PESOS[st][key] * float(g.get("mult", 1.0))
-		var hpmax: float = K_HP_D * D + K_HP * e.est
+		var hpmax: float = (K_HP_D * D + K_HP * e.est) * (0.98 if clima == "calor" else 1.0)
 		var noise := rng.randfn(0.0, SORTE * (1.0 - e.int / 2400.0))
 		var chance := minf(0.9, e.int / 1000.0)
 		var vmax: float = (TETO[0] + (TETO[1] - TETO[0]) * clampf(e.vel, 0.0, 1200.0) / 1200.0) / 3.6
@@ -167,13 +174,13 @@ func step() -> Array:
 			var f: Dictionary = order[i - 1]
 			var gap: float = f.x - r.x
 			if gap > 0.0 and gap < 2.0 and f.v < vt and r.blk <= 0.0:
-				if rng.randf() < k * BLOCK * (1.0 - e.pod / 1500.0) * (1.0 - e.int / 2000.0):
+				if rng.randf() < k * BLOCK * mult_bloqueio * (1.0 - e.pod / 1500.0) * (1.0 - e.int / 2000.0):
 					r.blk = 1.0 / k
 			if r.blk > 0.0:
 				vt = minf(vt, f.v)
 				r.blk -= DT
 		vt = minf(vt, r.vmax)
-		var a: float = A0 * k * k * (0.8 + e.pod / 1000.0) * (5.0 if p == 0 else 1.0)
+		var a: float = A0 * k * k * (0.8 + e.pod / 1000.0) * (5.0 if p == 0 else 1.0) * mult_acel
 		if r.v < vt:
 			r.v = minf(vt, r.v + a * DT)
 		else:

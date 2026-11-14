@@ -12,10 +12,21 @@ Godot_v4.7.2-stable_win64.exe --path .
 ```
 
 **O que dá para fazer:** escolher a primeira garota entre 3 iniciais, conhecer outras na pool
-semanal e jogar com qualquer garota do elenco uma carreira curta de 24 semanas
-(treinar, descansar, sair, enfermaria) e disputar duas corridas-objetivo. Na Taça de Outono
-(semana 12) o objetivo é o top 5, e no Grande Prêmio Estelar (semana 24) é o top 3. Se falhar
-um objetivo, a carreira acaba. A corrida é assistida em 3D (primitivas placeholder), com
+semanal e jogar com qualquer garota do elenco uma carreira de 48 turnos (2 anos, um turno por
+meio mês), seguindo o [calendário](docs/calendario.md):
+
+- **5 objetivos:** Estreia (semana 4), uma Aberta sorteada (12), o Grande Prêmio do ano 1 (24),
+  uma Ouro sorteada que pede 1500 de fama (36) e o Grande Prêmio final (48). Falhou um, acabou.
+- **Mapa de rotas:** entre um objetivo e outro você escolhe um caminho num mapa sorteado de
+  3 colunas. Cada nó dura um mês: Treino focado, Circuito (corridas opcionais), Festival,
+  Recuperação, Biblioteca, Desafio (corrida de elite) ou Mistério (6 eventos).
+- **Fama e categorias:** Estreia, Aberta, Prata, Ouro e Grande Prêmio. As mais altas pedem fama.
+- **Clima do mês** (seis climas, conforme a estação), **férias de verão** com acampamento na
+  Serra ou na Praia e **véspera** com a rival antes dos Grandes Prêmios.
+- **Semente:** todos os sorteios saem da semente da carreira; recarregar e repetir a mesma
+  ação dá o mesmo resultado.
+
+A corrida é assistida em 3D (primitivas placeholder), com
 ranking ao vivo, minimapa, avisos de habilidade e botões 1x / 2x / pular.
 
 **Câmeras da corrida:** Automática (troca sozinha conforme a fase, como numa transmissão),
@@ -37,19 +48,20 @@ visíveis. Cada tiragem custa 100 moedas. Marque uma garota e ela vem garantida 
 recebe moeda (prêmios das corridas e bônus por objetivo) e decide se a nova versão substitui
 a salva. O perfil fica em `user://perfil.json`.
 
-**Fica para depois:** calendário completo de 48 turnos ([calendario.md](docs/calendario.md)),
-compra de habilidades e circuito de copas.
+**Fica para depois:** amuletos e compra de habilidades (etapa 3b), magnitude e circuito de copas.
 A arte é placeholder (formas coloridas).
 
 | Arquivo | O que faz |
 |---|---|
 | `scripts/sim_corrida.gd` | Simulação da corrida, port fiel de [corrida.md](docs/corrida.md) e `tools/sim_corrida.py`. Não depende de tela. |
+| `scripts/calendario.gd` | Datas, trechos, mapa de rotas, clima, objetivos sorteados e corridas geradas, tudo pela semente. |
 | `scripts/carreira.gd` | Regras da carreira. Os números de balanceamento ficam em `BAL`. |
 | `scripts/perfil.gd` | Moeda, elenco, vínculo, versão salva de cada garota e a pool. |
 | `scripts/dados.gd` | Autoload que carrega os arquivos de `data/` (elenco, iniciais, rivais, encontros). |
 | `scripts/corrida_3d.gd`, `scripts/pista_geo.gd` | Vista 3D da corrida (pista, corredoras, câmeras) e a geometria da pista em metros. |
 | `scripts/tela_*.gd`, `scripts/main.gd` | Telas montadas em código (escolha, carreira, corrida, fim). |
-| `testes/balanco.gd` | Joga carreiras com um bot e mede quantas cumprem os objetivos. |
+| `testes/balanco.gd` | Joga carreiras completas com um bot e mede objetivos, curva de atributos e fama. |
+| `testes/teste_mapa.gd` | Gera 800 mapas e confere as regras do sorteio. |
 | `testes/teste_perfil.gd` | Testa a pool, a garantia, o vínculo, a moeda do fim de carreira e o save do perfil. |
 | `testes/teste_save.gd` | Salva uma carreira, carrega de volta e confere se o estado é o mesmo. |
 | `testes/capturas.gd` | Passa pelas telas sozinho e salva capturas em `testes/capturas/`. |
@@ -60,16 +72,21 @@ A arte é placeholder (formas coloridas).
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/balanco.gd -- 200
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_save.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_perfil.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_mapa.gd
 Godot_v4.7.2-stable_win64_console.exe --path . --script res://testes/capturas.gd
 ```
 
-Com 200 carreiras por inicial, o bot cumpre o primeiro objetivo em ~80% das vezes e, dessas,
-o segundo em ~60%. Um jogador que cuida do humor e escolhe bem os treinos deve ir melhor.
+Com 40 carreiras por garota, o bot cumpre os objetivos em ~82% / 52% / 37% / 27% / 17%
+(acumulado), e a média dos atributos nos objetivos fica perto da curva do calendário
+(~160 / 265 / 420 / 470 / 730). O bot é simples; quem planeja a rota e cuida do humor vai melhor.
 
 ![Escolha](docs/prototipo/1_escolha.png)
 ![Academia](docs/prototipo/9_academia.png)
 ![Pool](docs/prototipo/10_pool.png)
 ![Fim de carreira](docs/prototipo/11_fim_de_carreira.png)
+![Mapa de rotas](docs/prototipo/12_mapa.png)
+![Circuito](docs/prototipo/13_circuito.png)
+![Férias](docs/prototipo/14_ferias.png)
 ![Carreira](docs/prototipo/6_depois_da_corrida.png)
 ![Encontro](docs/prototipo/7_encontro.png)
 ![Treino em dupla](docs/prototipo/8_treino_em_dupla.png)

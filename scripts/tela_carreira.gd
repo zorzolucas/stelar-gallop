@@ -1,6 +1,7 @@
 class_name TelaCarreira
 extends Control
-## Tela de turno da carreira (GDD §4.2): atributos, energia, humor e ações.
+## Tela de turno da carreira: atributos, energia, humor, fama e objetivos à esquerda;
+## data, clima, rota e a decisão do turno à direita (ações, mapa, férias, encontro ou corrida).
 
 signal ir_correr
 signal atualizou(msg: String)
@@ -15,142 +16,292 @@ func _init(carreira: Carreira, mensagem: String) -> void:
 
 
 func _ready() -> void:
-	var raiz := UI.hbox(20)
+	var raiz := UI.hbox(18)
 	raiz.add_child(_painel_garota())
-	raiz.add_child(_painel_acoes())
-	add_child(UI.margem(raiz, 24))
+	var rolagem := ScrollContainer.new()
+	rolagem.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolagem.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var direita := _painel_turno()
+	direita.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolagem.add_child(direita)
+	raiz.add_child(rolagem)
+	add_child(UI.margem(raiz, 20))
+
+
+# ---------- painel da garota ----------
+
+func _linha_barra(rotulo: String, valor: float, maximo: float, cor: Color) -> Control:
+	var h := UI.hbox(8)
+	var l := UI.label(rotulo, 14)
+	l.custom_minimum_size.x = 104
+	h.add_child(l)
+	h.add_child(UI.barra(valor, maximo, cor, 190))
+	h.add_child(UI.label("%d" % valor, 14))
+	return h
 
 
 func _painel_garota() -> Control:
 	var p := UI.painel()
-	p.custom_minimum_size.x = 430
-	var v := UI.vbox(10)
+	p.custom_minimum_size.x = 410
+	var v := UI.vbox(7)
 	var topo := UI.hbox(12)
-	topo.add_child(UI.retrato(c.nome, c.cor, 72))
+	topo.add_child(UI.retrato(c.nome, c.cor, 64))
 	var nomes := UI.vbox(2)
-	nomes.add_child(UI.label(c.nome, 24))
-	nomes.add_child(UI.label("%s · Nota %s" % [Dados.ESTILO_NOME[c.estilo], Dados.nota(c.attrs)], 16, UI.DESTAQUE))
+	nomes.add_child(UI.label(c.nome, 22))
+	nomes.add_child(UI.label("%s · Nota %s · Fama %d" % [Dados.ESTILO_NOME[c.estilo], Dados.nota(c.attrs), c.fama], 15, UI.DESTAQUE))
 	topo.add_child(nomes)
 	v.add_child(topo)
-
 	for k in SimCorrida.KEYS:
-		var h := UI.hbox(8)
-		var l := UI.label(Dados.ATTR_NOME[k], 15)
-		l.custom_minimum_size.x = 110
-		h.add_child(l)
-		h.add_child(UI.barra(c.attrs[k], c.limite, c.cor, 200))
-		h.add_child(UI.label("%d" % c.attrs[k], 15))
-		v.add_child(h)
-
+		v.add_child(_linha_barra(Dados.ATTR_NOME[k], c.attrs[k], c.limite, c.cor))
 	v.add_child(HSeparator.new())
-	var he := UI.hbox(8)
-	var le := UI.label("Energia", 15)
-	le.custom_minimum_size.x = 110
-	he.add_child(le)
 	var cor_e := UI.OK if c.energia >= 60 else (UI.DESTAQUE if c.energia >= Carreira.BAL.limite_falha else UI.PERIGO)
-	he.add_child(UI.barra(c.energia, 100, cor_e, 200))
-	he.add_child(UI.label("%d" % c.energia, 15))
-	v.add_child(he)
+	v.add_child(_linha_barra("Energia", c.energia, 100, cor_e))
 	var cor_h: Color = [UI.PERIGO, UI.DESTAQUE, UI.TEXTO, UI.OK, UI.OK][c.humor]
-	v.add_child(UI.label("Humor: %s" % Carreira.HUMOR_NOME[c.humor], 16, cor_h))
+	var humor_txt := "Humor: %s" % Carreira.HUMOR_NOME[c.humor]
 	if c.lesionada:
-		v.add_child(UI.label("Lesionada: o treino rende metade até descansar ou ir à enfermaria.", 15, UI.PERIGO, true))
-
-	v.add_child(HSeparator.new())
-	v.add_child(UI.label("Aptidões", 15, UI.SUAVE))
+		humor_txt += " · Lesionada (treino rende metade)"
+	v.add_child(UI.label(humor_txt, 15, UI.PERIGO if c.lesionada else cor_h, true))
 	var apt := []
-	for d in ["sprint", "milha", "media", "longa"]:
-		apt.append("%s %s" % [Dados.DIST_NOME[d], Dados.APT_NOME[c.aptidao[d]]])
-	v.add_child(UI.label(" · ".join(apt), 14))
-	v.add_child(UI.label("Grama %s · Terra %s" % [Dados.APT_NOME[c.aptidao.grama], Dados.APT_NOME[c.aptidao.terra]], 14))
+	for d in ["sprint", "milha", "media", "longa", "grama", "terra"]:
+		apt.append("%s %s" % [d.capitalize().substr(0, 3), Dados.APT_NOME[c.aptidao[d]]])
+	v.add_child(UI.label(" · ".join(apt), 12, UI.SUAVE, true))
 
 	v.add_child(HSeparator.new())
-	v.add_child(UI.label("Afinidade (%d+ treina em dupla)" % Carreira.BAL.afinidade_dupla, 15, UI.SUAVE))
+	v.add_child(UI.label("Objetivos", 15, UI.SUAVE))
+	for o in c.objetivos:
+		var res := c.resultados.filter(func(r): return r.turno == o.turno and r.objetivo > 0)
+		var marca := "○"
+		var cor := UI.TEXTO
+		if not res.is_empty():
+			marca = "✓" if res[0].ok else "✗"
+			cor = UI.OK if res[0].ok else UI.PERIGO
+		elif o.turno == c.turno:
+			marca = "►"
+			cor = UI.DESTAQUE
+		var extra := " (fama %d+)" % o.fama_min if o.has("fama_min") else ""
+		var txt := "%s Sem %d · %s%s" % [marca, o.turno, o.texto, extra]
+		v.add_child(UI.label(txt, 13, cor, true))
+
+	v.add_child(HSeparator.new())
 	var grade := GridContainer.new()
 	grade.columns = 2
-	grade.add_theme_constant_override("h_separation", 12)
+	grade.add_theme_constant_override("h_separation", 10)
 	for colega in c.afinidade:
-		var h := UI.hbox(6)
-		var l := UI.label(colega.split(" ")[0], 14)
-		l.custom_minimum_size.x = 64
+		var h := UI.hbox(5)
+		var l := UI.label(colega.split(" ")[0], 12)
+		l.custom_minimum_size.x = 58
 		h.add_child(l)
 		var af: int = c.afinidade[colega]
 		var cor := UI.PERIGO if af < 0 else (UI.OK if af >= Carreira.BAL.afinidade_dupla else Color("#b07cc6"))
-		h.add_child(UI.barra(maxi(af, 0), 100, cor, 80))
-		h.add_child(UI.label(str(af), 13, UI.SUAVE))
+		h.add_child(UI.barra(maxi(af, 0), 100, cor, 70))
+		h.add_child(UI.label(str(af), 12, UI.SUAVE))
 		grade.add_child(h)
+	v.add_child(UI.label("Afinidade (%d+ treina em dupla)" % Carreira.BAL.afinidade_dupla, 13, UI.SUAVE))
 	v.add_child(grade)
 	p.add_child(v)
 	return p
 
 
-func _painel_acoes() -> Control:
-	var v := UI.vbox(12)
-	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+# ---------- painel do turno ----------
+
+func _painel_turno() -> VBoxContainer:
+	var v := UI.vbox(10)
 	var topo := UI.painel()
 	var tv := UI.vbox(4)
-	tv.add_child(UI.label("Semana %d de %d" % [c.turno, Carreira.BAL.turnos], 26, UI.DESTAQUE))
-	var prox := c.proxima_corrida()
-	if not prox.is_empty():
-		var faltam: int = prox[0] - c.turno
-		var quando := "nesta semana" if faltam == 0 else "em %d semana%s" % [faltam, "s" if faltam > 1 else ""]
-		tv.add_child(UI.label("Próxima corrida: %s (%s %d m), %s. Objetivo: top %d." % [
-			prox[1].nome, Dados.DIST_NOME[c.distancia], Dados.DISTANCIAS[c.distancia], quando, prox[1].objetivo], 16, UI.TEXTO, true))
+	var cab := UI.hbox(12)
+	var data := UI.label(Calendario.data_texto(c.turno), 24, UI.DESTAQUE)
+	data.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cab.add_child(data)
+	cab.add_child(UI.label("Semana %d de %d" % [c.turno, Carreira.BAL.turnos], 15, UI.SUAVE))
+	tv.add_child(cab)
+	var cl: Dictionary = Dados.calendario.climas[c.clima()]
+	tv.add_child(UI.label("%s %s%s" % [cl.icone, cl.nome, ": " + cl.descricao if cl.has("descricao") else ""], 14, UI.TEXTO, true))
+	var no := c.no_atual()
+	if not no.is_empty():
+		tv.add_child(UI.label("Rota: %s" % _descricao_no(no), 14, UI.TEXTO, true))
+	elif c.em_ferias():
+		tv.add_child(UI.label("Férias de verão: sem corridas, Sair sempre gera encontro e o descanso rende +50%.", 14, UI.TEXTO, true))
+	elif Calendario.e_vespera(c.turno):
+		tv.add_child(UI.label("Véspera do objetivo: sem corridas opcionais.", 14, UI.TEXTO, true))
+	var o := c.proximo_objetivo()
+	if not o.is_empty():
+		var faltam: int = o.turno - c.turno
+		var quando := "neste turno" if faltam == 0 else "em %d turno%s" % [faltam, "s" if faltam > 1 else ""]
+		tv.add_child(UI.label("Próximo objetivo (%s): %s · %s %s · %s" % [quando, o.texto, Dados.DIST_NOME[o.dist],
+			o.piso, o.nome], 14, UI.DESTAQUE, true))
 	topo.add_child(tv)
 	v.add_child(topo)
 
 	if msg != "":
-		var pm := UI.painel(Color("#2a3150"))
-		pm.add_child(UI.label(msg, 16, UI.TEXTO, true))
+		var pm := UI.painel(Color("#2a3150"), 10)
+		pm.add_child(UI.label(msg, 15, UI.TEXTO, true))
 		v.add_child(pm)
 
-	if not c.encontro_atual().is_empty():
-		v.add_child(_painel_encontro(c.encontro_atual()))
-		return v
+	match c.pendencia():
+		"encontro":
+			v.add_child(_painel_encontro(c.encontro_atual()))
+		"mapa":
+			v.add_child(_painel_mapa())
+		"ferias":
+			v.add_child(_painel_ferias())
+		"corrida":
+			v.add_child(_botao_grande("Ir para a corrida: %s" % c.corrida_atual.nome, func(): ir_correr.emit()))
+		"objetivo":
+			v.add_child(_botao_grande("Correr o objetivo: %s" % c.objetivo_do_turno().nome, func(): ir_correr.emit()))
+		"sem_fama":
+			v.add_child(UI.label("Ela precisa de %d de fama para entrar nesta corrida e tem %d." % [
+				c.objetivo_do_turno().fama_min, c.fama], 18, UI.PERIGO, true))
+			v.add_child(_botao_grande("Encerrar a carreira", func(): atualizou.emit(c.falhar_por_fama())))
+		_:
+			_acoes(v)
+	return v
 
-	if not c.corrida_do_turno().is_empty():
-		var b := UI.botao("Ir para a corrida: %s" % c.corrida_do_turno().nome, func(): ir_correr.emit(), 24)
-		b.custom_minimum_size.y = 70
-		v.add_child(b)
-		return v
 
-	v.add_child(UI.label("Treinar", 18, UI.SUAVE))
+func _descricao_no(no: Dictionary) -> String:
+	var info: Dictionary = Dados.calendario.nos[no.tipo]
+	var desc: String = info.descricao
+	if no.tipo == "foco":
+		desc = desc % Dados.ATTR_NOME[no.foco]
+	var nome_no: String = info.nome
+	if no.tipo == "foco":
+		nome_no += " (%s)" % Dados.ATTR_NOME[no.foco]
+	return "%s %s. %s" % [info.icone, nome_no, desc]
+
+
+func _botao_grande(texto: String, acao: Callable) -> Button:
+	var b := UI.botao(texto, acao, 22)
+	b.custom_minimum_size.y = 64
+	return b
+
+
+func _acoes(v: VBoxContainer) -> void:
+	var corridas := c.corridas_opcionais()
+	if not corridas.is_empty():
+		v.add_child(UI.label("Correr (gasta %d de energia, sem treino neste turno)" % Carreira.BAL.energia_corrida, 16, UI.SUAVE))
+		var hc := UI.hbox(8)
+		for cr in corridas:
+			hc.add_child(_cartao_corrida(cr))
+		v.add_child(hc)
+
+	v.add_child(UI.label("Treinar", 16, UI.SUAVE))
 	var grade := GridContainer.new()
 	grade.columns = 5
-	grade.add_theme_constant_override("h_separation", 8)
+	grade.add_theme_constant_override("h_separation", 6)
 	for t in Carreira.TREINOS:
 		grade.add_child(_botao_treino(t))
 	v.add_child(grade)
 
-	v.add_child(UI.label("Outras ações", 18, UI.SUAVE))
+	v.add_child(UI.label("Outras ações", 16, UI.SUAVE))
 	var h := UI.hbox(8)
-	h.add_child(_botao_acao("Descansar\n+%d energia" % Carreira.BAL.descanso, c.descansar))
-	h.add_child(_botao_acao("Sair\n+humor, +%d energia" % Carreira.BAL.sair_energia, c.sair))
+	h.add_child(_botao_acao("Descansar\n+%d energia" % c.descanso_previsto(), c.descansar))
+	var sair_txt := "Sair\n+humor, +%d energia" % Carreira.BAL.sair_energia
+	if c.tipo_no() == "festival" or c.em_ferias():
+		sair_txt += "\nencontro garantido"
+	h.add_child(_botao_acao(sair_txt, c.sair))
 	if c.lesionada:
 		h.add_child(_botao_acao("Enfermaria\ncura a lesão", c.enfermaria))
 	v.add_child(h)
-	return v
 
 
-## Encontro da semana: diálogo curto com 2 ou 3 escolhas (GDD §4.7).
+func _cartao_corrida(cr: Dictionary) -> Control:
+	var cat: Dictionary = Dados.calendario.categorias[cr.cat]
+	var linhas := ["%s%s" % ["⚔ " if cr.get("desafio", false) else "", cr.nome],
+		"%s · %s %s · %d m" % [cat.nome, Dados.DIST_NOME[cr.dist], cr.piso, Calendario.metros(cr)],
+		"Aptidão %s/%s · fama até %d" % [Dados.APT_NOME[c.aptidao[cr.dist]], Dados.APT_NOME[c.aptidao[cr.piso]], c.fama_prevista(cr)]]
+	var pode := c.pode_entrar(cr)
+	if not pode:
+		linhas.append("Precisa de %d de fama" % cat.fama_entrada)
+	var b := UI.botao("\n".join(linhas), func(): _correr(cr), 14)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.custom_minimum_size.y = 92
+	b.disabled = not pode
+	return b
+
+
+func _correr(cr: Dictionary) -> void:
+	c.escolher_corrida(cr)
+	ir_correr.emit()
+
+
+func _painel_mapa() -> Control:
+	var t := c.trecho()
+	var mapa: Array = c.mapas[t]
+	var feitas: Array = c.rota[t]
+	var opcoes := c.opcoes_mapa()
+	var p := UI.painel(Color("#1d2b3a"), 14)
+	var v := UI.vbox(8)
+	v.add_child(UI.label("Trecho %d · escolha a rota do próximo mês" % (t + 1), 20, UI.DESTAQUE))
+	v.add_child(UI.label("Cada nó dura 1 mês (2 turnos) e liga ao de baixo e às diagonais. Todo caminho passa por pelo menos um Circuito, que é onde há corridas opcionais.", 13, UI.SUAVE, true))
+	var turno0: int = Dados.calendario.trechos[t].turnos[0]
+	for i in mapa.size():
+		var turno_linha: int = turno0 + i * 2
+		var h := UI.hbox(8)
+		var cl: Dictionary = Dados.calendario.climas[Calendario.clima(c.semente, turno_linha)]
+		var mes := UI.label("%s %s" % [Dados.calendario.meses[Calendario.mes_idx(turno_linha) % 12].substr(0, 3), cl.icone], 15)
+		mes.custom_minimum_size.x = 64
+		mes.tooltip_text = cl.nome
+		h.add_child(mes)
+		for col in 3:
+			var no: Dictionary = mapa[i][col]
+			var info: Dictionary = Dados.calendario.nos[no.tipo]
+			var txt := "%s %s" % [info.icone, info.nome]
+			if no.tipo == "foco":
+				txt += "\n%s" % Dados.ATTR_NOME[no.foco]
+			var b := UI.botao(txt, func(): atualizou.emit(c.escolher_no(col)), 14)
+			b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			b.custom_minimum_size.y = 50
+			b.tooltip_text = _descricao_no(no)
+			var escolhida: bool = i < feitas.size() and feitas[i] == col
+			var disponivel: bool = i == feitas.size() and col in opcoes
+			b.disabled = not disponivel
+			if escolhida:
+				b.text = "● " + b.text
+				b.add_theme_color_override("font_disabled_color", UI.DESTAQUE)
+			h.add_child(b)
+		v.add_child(h)
+	var tr: Dictionary = Dados.calendario.trechos[t]
+	var fim := "Depois: Véspera (sem %d)" % tr.vespera
+	if tr.has("ferias"):
+		fim = "Depois: Férias (sem %d–%d), Véspera (sem %d)" % [tr.ferias[0], tr.ferias[1], tr.vespera]
+	v.add_child(UI.label("%s e o objetivo na semana %d." % [fim, tr.objetivo], 13, UI.SUAVE, true))
+	p.add_child(v)
+	return p
+
+
+func _painel_ferias() -> Control:
+	var p := UI.painel(Color("#2b3a2a"), 18)
+	var v := UI.vbox(10)
+	v.add_child(UI.label("Férias de verão: escolha o acampamento", 22, UI.DESTAQUE))
+	v.add_child(UI.label("Durante as férias não há corridas, Sair sempre gera encontro e o descanso rende +50%.", 15, UI.TEXTO, true))
+	v.add_child(_botao_grande("Serra: Estamina e Determinação contam 1 nível acima", func(): atualizou.emit(c.escolher_acampamento("serra"))))
+	v.add_child(_botao_grande("Praia: Velocidade e Poder contam 1 nível acima", func(): atualizou.emit(c.escolher_acampamento("praia"))))
+	p.add_child(v)
+	return p
+
+
+## Encontro, Mistério ou véspera: diálogo curto com 1 a 3 escolhas (GDD §4.7).
 func _painel_encontro(e: Dictionary) -> Control:
-	var p := UI.painel(Color("#2b2440"), 20)
-	var v := UI.vbox(12)
+	var tipo: String = c.encontro_pendente.get("tipo", "encontro")
+	var p := UI.painel(Color("#2b2440") if tipo != "misterio" else Color("#3a2a20"), 18)
+	var v := UI.vbox(10)
 	var topo := UI.hbox(12)
-	var outra: String = c.encontro_pendente.get("outra", "")
-	var quem: String = c.nome if e.garota != null else outra
+	var quem: String = c.nome
+	if tipo == "encontro" and e.get("garota") == null:
+		quem = c.encontro_pendente.get("outra", c.nome)
+	elif tipo == "vespera":
+		quem = c.encontro_pendente.get("rival", c.nome)
 	var ini := Dados.config_carreira(quem)
-	topo.add_child(UI.retrato(quem, Color(ini.get("cor", "#b07cc6")), 64))
+	topo.add_child(UI.retrato(quem, Color(ini.get("cor", "#b07cc6")), 60))
 	var tv := UI.vbox(2)
-	tv.add_child(UI.label("Encontro", 14, UI.SUAVE))
-	tv.add_child(UI.label(e.titulo, 24, UI.DESTAQUE))
+	tv.add_child(UI.label({"encontro": "Encontro", "misterio": "Mistério", "vespera": "Véspera"}[tipo], 14, UI.SUAVE))
+	tv.add_child(UI.label(e.titulo, 22, UI.DESTAQUE))
 	topo.add_child(tv)
 	v.add_child(topo)
-	v.add_child(UI.label(c.texto(e.texto), 18, UI.TEXTO, true))
+	v.add_child(UI.label(c.texto(e.texto), 17, UI.TEXTO, true))
 	for i in e.escolhas.size():
 		var idx: int = i
-		var b := UI.botao(c.texto(e.escolhas[i].texto), func(): atualizou.emit(c.escolher(idx)), 18)
-		b.custom_minimum_size.y = 52
+		var b := UI.botao(c.texto(e.escolhas[i].texto), func(): atualizou.emit(c.escolher(idx)), 17)
+		b.custom_minimum_size.y = 48
 		v.add_child(b)
 	p.add_child(v)
 	return p
@@ -158,22 +309,27 @@ func _painel_encontro(e: Dictionary) -> Control:
 
 func _botao_treino(t: String) -> Button:
 	var g := c.ganho_previsto(t)
-	var linhas := ["%s  Nv %d%s" % [Dados.ATTR_NOME[t], c.nivel_treino(t), " ★" if t in c.naturais else ""]]
+	var nv := c.nivel_efetivo(t)
+	var nv_txt := "Nv %d" % nv
+	if nv > c.nivel_treino(t):
+		nv_txt += "↑"
+	var linhas := ["%s %s%s" % [Dados.ATTR_CURTO[t], nv_txt, " ★" if t in c.naturais else ""]]
 	if c.duplas.has(t):
 		linhas.append("com %s!" % c.duplas[t].split(" ")[0])
 	for k in g:
 		linhas.append("+%d %s" % [round(g[k]), Dados.ATTR_CURTO[k]])
 	linhas.append("−%d energia" % c.custo(t))
-	var falha := c.chance_falha()
+	var falha := c.chance_falha(t)
 	linhas.append("Falha %d%%" % round(falha * 100))
 	var b := _botao_acao("\n".join(linhas), func(): return c.treinar(t))
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.tooltip_text = Dados.ATTR_NOME[t]
 	if falha > 0.0:
 		b.add_theme_color_override("font_color", UI.PERIGO if falha >= 0.25 else UI.DESTAQUE)
 	return b
 
 
 func _botao_acao(texto: String, acao: Callable) -> Button:
-	var b := UI.botao(texto, func(): atualizou.emit(acao.call()), 15)
-	b.custom_minimum_size = Vector2(150, 120)
+	var b := UI.botao(texto, func(): atualizou.emit(acao.call()), 14)
+	b.custom_minimum_size = Vector2(130, 112)
 	return b

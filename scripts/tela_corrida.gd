@@ -36,7 +36,7 @@ var continuar: Button
 func _init(d: Dictionary, cor: Color) -> void:
 	dados = d
 	cor_jogadora = cor
-	sim = SimCorrida.new(d.field, d.distancia)
+	sim = SimCorrida.new(d.field, d.distancia, d.get("seed", 0), d.get("clima", ""))
 	for r in sim.rs:
 		x_antes.append(r.x)
 	var n := 0
@@ -51,7 +51,12 @@ func _init(d: Dictionary, cor: Color) -> void:
 func _ready() -> void:
 	var raiz := UI.vbox(12)
 	var topo := UI.hbox(12)
-	var titulo := UI.label("%s · %d m · objetivo top %d" % [dados.nome, dados.distancia, dados.objetivo], 22, UI.DESTAQUE)
+	var meta := "objetivo top %d" % dados.objetivo if dados.objetivo > 0 else "corrida opcional"
+	var clima_txt := ""
+	if dados.get("clima", "") != "":
+		var cl: Dictionary = Dados.calendario.climas[dados.clima]
+		clima_txt = " · %s %s" % [cl.icone, cl.nome]
+	var titulo := UI.label("%s · %d m · %s%s" % [dados.nome, dados.distancia, meta, clima_txt], 22, UI.DESTAQUE)
 	titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	topo.add_child(titulo)
 	botoes = UI.hbox(6)

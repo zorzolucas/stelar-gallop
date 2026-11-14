@@ -62,7 +62,7 @@ func _comecar_carreira(nome: String) -> void:
 	if carreira.vinculo > 0:
 		extra = " Vínculo %d: +%d em cada atributo e limite de %d." % [
 			carreira.vinculo, Carreira.BAL.vinculo_attr * carreira.vinculo, carreira.limite]
-	mostrar_carreira("Começa a carreira de %s! 24 semanas até o Grande Prêmio Estelar.%s" % [carreira.nome, extra])
+	mostrar_carreira("Começa a carreira de %s! Dois anos, 5 objetivos e um mapa de rotas novo a cada carreira.%s" % [carreira.nome, extra])
 
 
 func _continuar_carreira() -> void:
