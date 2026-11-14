@@ -17,6 +17,7 @@ var cores: Array = []
 var velocidade := 1.0
 var acumulado := 0.0
 var acabou := false
+var emitiu := false   # evita registrar a corrida duas vezes (botão + Enter)
 var avisos: Array = []   # [{idx, texto, vida}]
 var linhas: Array = []   # [ColorRect, Label] por posição do ranking
 
@@ -31,6 +32,8 @@ var info: Label
 var feed: VBoxContainer
 var botoes: HBoxContainer
 var continuar: Button
+var resultado: PanelContainer
+var resultado_txt: Label
 
 
 func _init(d: Dictionary, cor: Color) -> void:
@@ -64,6 +67,10 @@ func _ready() -> void:
 	botoes.add_child(UI.botao("2x", func(): velocidade = 2.0))
 	botoes.add_child(UI.botao("Pular", _pular))
 	topo.add_child(botoes)
+	# no fim, o Continuar fica no topo (no lugar dos botões de velocidade), sempre visível
+	continuar = UI.botao("Continuar ▶", _continuar, 20)
+	continuar.visible = false
+	topo.add_child(continuar)
 	raiz.add_child(topo)
 
 	var meio := UI.hbox(16)
@@ -106,9 +113,25 @@ func _ready() -> void:
 	faixa_aviso.add_theme_constant_override("outline_size", 8)
 	faixa_aviso.add_theme_color_override("font_outline_color", Color.BLACK)
 	sobre.add_child(faixa_aviso)
+	# cartão de resultado no centro da vista 3D, com outro botão de continuar
+	resultado = UI.painel(Color(0.08, 0.1, 0.16, 0.92), 20)
+	resultado.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	resultado.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	resultado.grow_vertical = Control.GROW_DIRECTION_BOTH
+	resultado.visible = false
+	var rv := UI.vbox(12)
+	resultado_txt = UI.label("", 26, UI.DESTAQUE)
+	resultado_txt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rv.add_child(resultado_txt)
+	var b := UI.botao("Continuar (Enter)", _continuar, 20)
+	b.custom_minimum_size = Vector2(260, 48)
+	rv.add_child(b)
+	resultado.add_child(rv)
+	sobre.add_child(resultado)
 
 	var lado := UI.painel()
 	lado.custom_minimum_size.x = 300
+	lado.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var lv := UI.vbox(6)
 	info = UI.label("", 16)
 	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -122,13 +145,15 @@ func _ready() -> void:
 	lv.add_child(UI.label("Habilidades", 14, UI.SUAVE))
 	feed = UI.vbox(2)
 	lv.add_child(feed)
-	lado.add_child(lv)
+	# o painel lateral rola se não couber, para nunca empurrar nada para fora da tela
+	var rolagem := ScrollContainer.new()
+	rolagem.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	rolagem.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	lv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolagem.add_child(lv)
+	lado.add_child(rolagem)
 	meio.add_child(lado)
 	raiz.add_child(meio)
-
-	continuar = UI.botao("Continuar", _continuar, 20)
-	continuar.visible = false
-	raiz.add_child(continuar)
 	add_child(UI.margem(raiz, 20))
 	_atualizar_ranking()
 
@@ -176,6 +201,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	var k := event as InputEventKey
 	if k == null or not k.pressed or k.echo:
 		return
+	if acabou and k.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]:
+		_continuar()
+		return
 	if k.keycode == KEY_C:
 		_proxima_camera()
 	elif k.keycode >= KEY_1 and k.keycode < KEY_1 + Corrida3D.CAMERA_NOME.size():
@@ -202,7 +230,7 @@ func _registrar(ev: Array) -> void:
 			faixa_aviso.text = "%s: %s%s" % [g.nome.split(" ")[0], e.nome, " ★" if e.unica else ""]
 			aviso_vida = 2.0
 		feed.add_child(UI.label(txt, 13, cor))
-		while feed.get_child_count() > 8:
+		while feed.get_child_count() > 6:
 			var velho := feed.get_child(0)
 			feed.remove_child(velho)
 			velho.queue_free()
@@ -224,6 +252,14 @@ func _finalizar() -> void:
 	var pos := posicao_jogadora()
 	info.text = "Chegada! %s terminou em %dº." % [dados.field[0].nome.split(" ")[0], pos]
 	continuar.visible = true
+	aviso_vida = 0.0
+	var meta := ""
+	if dados.objetivo > 0:
+		meta = "
+Objetivo cumprido!" if pos <= dados.objetivo else "
+O objetivo era o top %d." % dados.objetivo
+	resultado_txt.text = "%s terminou em %dº%s" % [dados.field[0].nome.split(" ")[0], pos, meta]
+	resultado.visible = true
 
 
 func posicao_jogadora() -> int:
@@ -231,6 +267,9 @@ func posicao_jogadora() -> int:
 
 
 func _continuar() -> void:
+	if not acabou or emitiu:
+		return
+	emitiu = true
 	terminou.emit(posicao_jogadora())
 
 

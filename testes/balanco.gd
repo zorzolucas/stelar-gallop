@@ -40,12 +40,15 @@ func _initialize() -> void:
 		var fama36 := 0
 		var corridas := 0
 		var falta_fama := 0
+		var amuletos := 0
+		var habs := 0
 		for i in n:
 			var c = CarreiraS.new(dados.garota(ini.nome), ini, i + 1)
 			var peso := PESO_ALVO.duplicate()
 			if c.distancia in ["media", "longa"]:
 				peso.est = 1.3
 			var guard := 0
+			var _habs_antes := 0
 			while not c.terminou and guard < 400:
 				guard += 1
 				var t0: int = c.turno
@@ -57,6 +60,12 @@ func _initialize() -> void:
 				match p:
 					"encontro":
 						c.escolher(hash([i, c.turno]) % c.encontro_atual().escolhas.size())
+					"amuleto":
+						amuletos += 1
+						if c.amuletos.size() < 6:
+							c.escolher_amuleto(c.oferta_amuleto[0])
+						else:
+							c.escolher_amuleto(c.oferta_amuleto[0], c.amuletos[0])
 					"mapa":
 						c.escolher_no(_melhor_no(c))
 					"ferias":
@@ -79,13 +88,15 @@ func _initialize() -> void:
 						_acao(c, peso)
 		var linha := []
 		for j in 5:
+			pass
+		for j in 5:
 			linha.append("%3d%%" % (100 * passou[j] / n))
 		var cv := []
 		for j in 5:
 			var chegaram: int = passou[j - 1] if j > 0 else n
 			cv.append("%d" % (curva[j] / maxi(1, chegaram)))
-		print("%-17s obj %s | média nos objetivos %s | fama no t36 %d | %.1f corridas | sem fama %d" % [
-			ini.nome, " ".join(linha), "/".join(cv), fama36 / maxi(1, passou[2]), float(corridas) / n, falta_fama])
+		print("%-17s obj %s | média nos objetivos %s | fama no t36 %d | %.1f corridas | %.1f amuletos | sem fama %d" % [
+			ini.nome, " ".join(linha), "/".join(cv), fama36 / maxi(1, passou[2]), float(corridas) / n, float(amuletos) / n, falta_fama])
 	quit()
 
 
@@ -113,6 +124,10 @@ func _melhor_no(c) -> int:
 
 
 func _acao(c, peso: Dictionary) -> void:
+	# compra habilidades quando dá (primeiro as de referência, depois as outras)
+	for h in dd.habilidades.lista:
+		if c.pode_comprar(h.id):
+			c.comprar_habilidade(h.id)
 	if c.lesionada:
 		c.enfermaria()
 		if c.lesionada == false and c.tipo_no() == "recuperacao":

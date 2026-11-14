@@ -8,6 +8,8 @@ signal atualizou(msg: String)
 
 var c: Carreira
 var msg: String
+## Amuleto escolhido quando os 6 espaços já estão cheios (falta dizer qual sai).
+var amuleto_escolhido := ""
 
 
 func _init(carreira: Carreira, mensagem: String) -> void:
@@ -98,6 +100,18 @@ func _painel_garota() -> Control:
 		grade.add_child(h)
 	v.add_child(UI.label("Afinidade (%d+ treina em dupla)" % Carreira.BAL.afinidade_dupla, 13, UI.SUAVE))
 	v.add_child(grade)
+
+	v.add_child(HSeparator.new())
+	var amu: Array = c.amuletos.map(func(id): return Dados.amuleto(id).nome)
+	var l_amu := UI.label("Amuletos (%d/%d): %s" % [c.amuletos.size(), Dados.amuletos.limite,
+		", ".join(amu) if not amu.is_empty() else "nenhum ainda"], 13, UI.TEXTO, true)
+	l_amu.tooltip_text = "\n".join(c.amuletos.map(func(id): return "%s: %s" % [Dados.amuleto(id).nome, Dados.amuleto(id).descricao]))
+	l_amu.mouse_filter = Control.MOUSE_FILTER_PASS
+	v.add_child(l_amu)
+	var hab: Array = c.habilidades.map(func(id): return Dados.habilidade(id).nome)
+	if c.unica != "":
+		hab.push_front(SimCorrida.UNICAS[c.unica].nome + " ★")
+	v.add_child(UI.label("Habilidades: %s" % ", ".join(hab), 13, UI.TEXTO, true))
 	p.add_child(v)
 	return p
 
@@ -140,6 +154,8 @@ func _painel_turno() -> VBoxContainer:
 	match c.pendencia():
 		"encontro":
 			v.add_child(_painel_encontro(c.encontro_atual()))
+		"amuleto":
+			v.add_child(_painel_amuleto())
 		"mapa":
 			v.add_child(_painel_mapa())
 		"ferias":
@@ -177,7 +193,7 @@ func _botao_grande(texto: String, acao: Callable) -> Button:
 func _acoes(v: VBoxContainer) -> void:
 	var corridas := c.corridas_opcionais()
 	if not corridas.is_empty():
-		v.add_child(UI.label("Correr (gasta %d de energia, sem treino neste turno)" % Carreira.BAL.energia_corrida, 16, UI.SUAVE))
+		v.add_child(UI.label("Correr (gasta %d de energia, sem treino neste turno)" % c.energia_corrida(), 16, UI.SUAVE))
 		var hc := UI.hbox(8)
 		for cr in corridas:
 			hc.add_child(_cartao_corrida(cr))
@@ -201,6 +217,71 @@ func _acoes(v: VBoxContainer) -> void:
 	if c.lesionada:
 		h.add_child(_botao_acao("Enfermaria\ncura a lesão", c.enfermaria))
 	v.add_child(h)
+	v.add_child(_loja_habilidades())
+
+
+## Loja de habilidades genéricas: comprar não gasta o turno (GDD §3.4).
+func _loja_habilidades() -> Control:
+	var p := UI.painel(Color("#1d2b3a"), 10)
+	var v := UI.vbox(6)
+	var desconto := " · Biblioteca: −30% no preço" if c.tipo_no() == "biblioteca" else ""
+	v.add_child(UI.label("Habilidades · %d pontos · %d/%d equipadas%s (comprar não gasta o turno)" % [
+		c.pontos, c.habilidades.size(), Dados.habilidades.limite, desconto], 15, UI.SUAVE, true))
+	var grade := GridContainer.new()
+	grade.columns = 5
+	grade.add_theme_constant_override("h_separation", 6)
+	grade.add_theme_constant_override("v_separation", 6)
+	for h in Dados.habilidades.lista:
+		var tem: bool = h.id in c.habilidades
+		var txt := "%s\n%s" % [h.nome, "✓ aprendida" if tem else "%d pts" % c.custo_habilidade(h.id)]
+		var b := UI.botao(txt, func(): atualizou.emit(c.comprar_habilidade(h.id)), 13)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size.y = 46
+		b.tooltip_text = h.descricao
+		b.disabled = not c.pode_comprar(h.id)
+		if tem:
+			b.add_theme_color_override("font_disabled_color", UI.OK)
+		grade.add_child(b)
+	v.add_child(grade)
+	p.add_child(v)
+	return p
+
+
+## Escolha de amuleto (1 entre 3 ou 4). Com 6 equipados, pede qual sai.
+func _painel_amuleto() -> Control:
+	var p := UI.painel(Color("#3a2f55"), 18)
+	var v := UI.vbox(10)
+	if amuleto_escolhido == "":
+		v.add_child(UI.label("Escolha um amuleto", 22, UI.DESTAQUE))
+		v.add_child(UI.label("Ele vale até o fim da carreira, mas não passa para a versão salva. Máximo de %d." % Dados.amuletos.limite, 14, UI.SUAVE, true))
+		for id in c.oferta_amuleto:
+			var a := Dados.amuleto(id)
+			var tipo: String = {"simples": "Simples", "troca": "Troca", "estilo": "Estilo", "raro": "Raro"}[a.tipo]
+			var b := UI.botao("%s  (%s)\n%s" % [a.nome, tipo, a.descricao], func(): _escolher_amuleto(id), 16)
+			b.custom_minimum_size.y = 62
+			if a.tipo == "raro":
+				b.add_theme_color_override("font_color", UI.DESTAQUE)
+			v.add_child(b)
+		v.add_child(UI.botao("Não quero nenhum", func(): atualizou.emit(c.descartar_oferta()), 14))
+	else:
+		v.add_child(UI.label("Os %d espaços estão cheios. Qual amuleto sai para entrar %s?" % [
+			Dados.amuletos.limite, Dados.amuleto(amuleto_escolhido).nome], 18, UI.DESTAQUE, true))
+		for id in c.amuletos:
+			var a := Dados.amuleto(id)
+			v.add_child(UI.botao("Tirar %s: %s" % [a.nome, a.descricao], func(): atualizou.emit(c.escolher_amuleto(amuleto_escolhido, id)), 14))
+		v.add_child(UI.botao("Deixar o novo de lado", func(): atualizou.emit(c.escolher_amuleto(amuleto_escolhido, "")), 14))
+	p.add_child(v)
+	return p
+
+
+func _escolher_amuleto(id: String) -> void:
+	if c.amuletos.size() < int(Dados.amuletos.limite):
+		atualizou.emit(c.escolher_amuleto(id))
+		return
+	amuleto_escolhido = id
+	for filho in get_children():
+		filho.queue_free()
+	_ready()
 
 
 func _cartao_corrida(cr: Dictionary) -> Control:

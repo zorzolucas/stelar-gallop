@@ -23,6 +23,12 @@ meio mês), seguindo o [calendário](docs/calendario.md):
 - **Fama e categorias:** Estreia, Aberta, Prata, Ouro e Grande Prêmio. As mais altas pedem fama.
 - **Clima do mês** (seis climas, conforme a estação), **férias de verão** com acampamento na
   Serra ou na Praia e **véspera** com a rival antes dos Grandes Prêmios.
+- **Amuletos:** cada objetivo cumprido (do 1 ao 4) e o top 3 num Desafio dão a escolha de
+  1 entre 3 amuletos (4, com um raro garantido, nos objetivos difíceis). São 15, de 4 tipos
+  (simples, troca, estilo e raro), com até 6 equipados. Valem só até o fim da carreira.
+- **Habilidades:** corridas dão pontos de habilidade, que compram genéricas na loja da
+  carreira (10 no total, até 6 equipadas; a Biblioteca dá 30% de desconto). Ela começa com
+  Fôlego Extra e Reta Decisiva, e a versão salva guarda as habilidades.
 - **Semente:** todos os sorteios saem da semente da carreira; recarregar e repetir a mesma
   ação dá o mesmo resultado.
 
@@ -48,7 +54,7 @@ visíveis. Cada tiragem custa 100 moedas. Marque uma garota e ela vem garantida 
 recebe moeda (prêmios das corridas e bônus por objetivo) e decide se a nova versão substitui
 a salva. O perfil fica em `user://perfil.json`.
 
-**Fica para depois:** amuletos e compra de habilidades (etapa 3b), magnitude e circuito de copas.
+**Fica para depois:** magnitude, liberar amuletos entre carreiras e o circuito de copas.
 A arte é placeholder (formas coloridas).
 
 | Arquivo | O que faz |
@@ -61,6 +67,7 @@ A arte é placeholder (formas coloridas).
 | `scripts/corrida_3d.gd`, `scripts/pista_geo.gd` | Vista 3D da corrida (pista, corredoras, câmeras) e a geometria da pista em metros. |
 | `scripts/tela_*.gd`, `scripts/main.gd` | Telas montadas em código (escolha, carreira, corrida, fim). |
 | `testes/balanco.gd` | Joga carreiras completas com um bot e mede objetivos, curva de atributos e fama. |
+| `testes/teste_amuletos.gd` | Testa oferta, limite e efeitos dos amuletos e a loja de habilidades. |
 | `testes/teste_mapa.gd` | Gera 800 mapas e confere as regras do sorteio. |
 | `testes/teste_perfil.gd` | Testa a pool, a garantia, o vínculo, a moeda do fim de carreira e o save do perfil. |
 | `testes/teste_save.gd` | Salva uma carreira, carrega de volta e confere se o estado é o mesmo. |
@@ -73,12 +80,13 @@ Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_save.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_perfil.gd
 Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_mapa.gd
+Godot_v4.7.2-stable_win64_console.exe --headless --path . --script res://testes/teste_amuletos.gd
 Godot_v4.7.2-stable_win64_console.exe --path . --script res://testes/capturas.gd
 ```
 
-Com 40 carreiras por garota, o bot cumpre os objetivos em ~82% / 52% / 37% / 27% / 17%
+Com 30 carreiras por garota, o bot cumpre os objetivos em ~80% / 56% / 45% / 38% / 26%
 (acumulado), e a média dos atributos nos objetivos fica perto da curva do calendário
-(~160 / 265 / 420 / 470 / 730). O bot é simples; quem planeja a rota e cuida do humor vai melhor.
+(~160 / 260 / 425 / 520 / 745). O bot é simples; quem planeja a rota e cuida do humor vai melhor.
 
 ![Escolha](docs/prototipo/1_escolha.png)
 ![Academia](docs/prototipo/9_academia.png)
@@ -87,6 +95,8 @@ Com 40 carreiras por garota, o bot cumpre os objetivos em ~82% / 52% / 37% / 27%
 ![Mapa de rotas](docs/prototipo/12_mapa.png)
 ![Circuito](docs/prototipo/13_circuito.png)
 ![Férias](docs/prototipo/14_ferias.png)
+![Amuleto](docs/prototipo/15_amuleto.png)
+![Loja de habilidades](docs/prototipo/16_loja_habilidades.png)
 ![Carreira](docs/prototipo/6_depois_da_corrida.png)
 ![Encontro](docs/prototipo/7_encontro.png)
 ![Treino em dupla](docs/prototipo/8_treino_em_dupla.png)
