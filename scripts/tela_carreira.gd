@@ -38,7 +38,7 @@ func _painel_garota() -> Control:
 		var l := UI.label(Dados.ATTR_NOME[k], 15)
 		l.custom_minimum_size.x = 110
 		h.add_child(l)
-		h.add_child(UI.barra(c.attrs[k], Carreira.BAL.limite_attr, c.cor, 200))
+		h.add_child(UI.barra(c.attrs[k], c.limite, c.cor, 200))
 		h.add_child(UI.label("%d" % c.attrs[k], 15))
 		v.add_child(h)
 
@@ -63,6 +63,23 @@ func _painel_garota() -> Control:
 		apt.append("%s %s" % [Dados.DIST_NOME[d], Dados.APT_NOME[c.aptidao[d]]])
 	v.add_child(UI.label(" · ".join(apt), 14))
 	v.add_child(UI.label("Grama %s · Terra %s" % [Dados.APT_NOME[c.aptidao.grama], Dados.APT_NOME[c.aptidao.terra]], 14))
+
+	v.add_child(HSeparator.new())
+	v.add_child(UI.label("Afinidade (%d+ treina em dupla)" % Carreira.BAL.afinidade_dupla, 15, UI.SUAVE))
+	var grade := GridContainer.new()
+	grade.columns = 2
+	grade.add_theme_constant_override("h_separation", 12)
+	for colega in c.afinidade:
+		var h := UI.hbox(6)
+		var l := UI.label(colega.split(" ")[0], 14)
+		l.custom_minimum_size.x = 64
+		h.add_child(l)
+		var af: int = c.afinidade[colega]
+		var cor := UI.PERIGO if af < 0 else (UI.OK if af >= Carreira.BAL.afinidade_dupla else Color("#b07cc6"))
+		h.add_child(UI.barra(maxi(af, 0), 100, cor, 80))
+		h.add_child(UI.label(str(af), 13, UI.SUAVE))
+		grade.add_child(h)
+	v.add_child(grade)
 	p.add_child(v)
 	return p
 
@@ -72,7 +89,6 @@ func _painel_acoes() -> Control:
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var topo := UI.painel()
 	var tv := UI.vbox(4)
-	var ano := 1 if c.turno <= 12 else 2
 	tv.add_child(UI.label("Semana %d de %d" % [c.turno, Carreira.BAL.turnos], 26, UI.DESTAQUE))
 	var prox := c.proxima_corrida()
 	if not prox.is_empty():
@@ -87,6 +103,10 @@ func _painel_acoes() -> Control:
 		var pm := UI.painel(Color("#2a3150"))
 		pm.add_child(UI.label(msg, 16, UI.TEXTO, true))
 		v.add_child(pm)
+
+	if not c.encontro_atual().is_empty():
+		v.add_child(_painel_encontro(c.encontro_atual()))
+		return v
 
 	if not c.corrida_do_turno().is_empty():
 		var b := UI.botao("Ir para a corrida: %s" % c.corrida_do_turno().nome, func(): ir_correr.emit(), 24)
@@ -112,9 +132,35 @@ func _painel_acoes() -> Control:
 	return v
 
 
+## Encontro da semana: diálogo curto com 2 ou 3 escolhas (GDD §4.7).
+func _painel_encontro(e: Dictionary) -> Control:
+	var p := UI.painel(Color("#2b2440"), 20)
+	var v := UI.vbox(12)
+	var topo := UI.hbox(12)
+	var outra: String = c.encontro_pendente.get("outra", "")
+	var quem: String = c.nome if e.garota != null else outra
+	var ini := Dados.config_carreira(quem)
+	topo.add_child(UI.retrato(quem, Color(ini.get("cor", "#b07cc6")), 64))
+	var tv := UI.vbox(2)
+	tv.add_child(UI.label("Encontro", 14, UI.SUAVE))
+	tv.add_child(UI.label(e.titulo, 24, UI.DESTAQUE))
+	topo.add_child(tv)
+	v.add_child(topo)
+	v.add_child(UI.label(c.texto(e.texto), 18, UI.TEXTO, true))
+	for i in e.escolhas.size():
+		var idx: int = i
+		var b := UI.botao(c.texto(e.escolhas[i].texto), func(): atualizou.emit(c.escolher(idx)), 18)
+		b.custom_minimum_size.y = 52
+		v.add_child(b)
+	p.add_child(v)
+	return p
+
+
 func _botao_treino(t: String) -> Button:
 	var g := c.ganho_previsto(t)
 	var linhas := ["%s  Nv %d%s" % [Dados.ATTR_NOME[t], c.nivel_treino(t), " ★" if t in c.naturais else ""]]
+	if c.duplas.has(t):
+		linhas.append("com %s!" % c.duplas[t].split(" ")[0])
 	for k in g:
 		linhas.append("+%d %s" % [round(g[k]), Dados.ATTR_CURTO[k]])
 	linhas.append("−%d energia" % c.custo(t))

@@ -1,0 +1,175 @@
+{
+  "_doc": "Encontros da carreira (GDD §4.7). 'garota': null = genérico (sorteia uma colega como {outra}); um nome = evento único dessa garota. 'quando': condições para aparecer. Efeitos: humor, energia, vel/est/pod/det/int, afinidade (com {outra}), nivel_treino (sobe 1 nível do treino mais usado), perde_turno. Uma escolha com 'chance' usa 'efeitos' se der certo e 'efeitos_falha' se não. Textos: {nome} = primeiro nome da garota treinada, {outra} = primeiro nome da colega.",
+  "colegas": ["Lira Alazã", "Nashira Tordilha", "Mira Pampa", "Capela Rosilha", "Antares Zaina", "Shaula Lobuna"],
+  "afinidade_inicial": {
+    "Lira Alazã": {"Antares Zaina": 20, "Shaula Lobuna": -10},
+    "Nashira Tordilha": {"Capela Rosilha": 20, "Mira Pampa": 20},
+    "Mira Pampa": {"Nashira Tordilha": 20, "Shaula Lobuna": 20}
+  },
+  "encontros": [
+    {
+      "id": "lira_refeitorio",
+      "garota": "Lira Alazã",
+      "titulo": "Corrida até o refeitório",
+      "texto": "— Quem chegar por último paga o almoço! — grita {nome}, já correndo antes de terminar a frase.",
+      "quando": {"turno_min": 2},
+      "escolhas": [
+        {"texto": "Aceitar o desafio", "efeitos": {"vel": 15, "energia": -10}, "resultado": "Foi apertado, mas {nome} chegou primeiro e não parou de se gabar o almoço inteiro."},
+        {"texto": "Recusar e ir andando", "efeitos": {"humor": 1}, "resultado": "{nome} reclamou, mas acabou rindo e guardou um lugar na mesa."}
+      ]
+    },
+    {
+      "id": "lira_derrota",
+      "garota": "Lira Alazã",
+      "titulo": "Primeira derrota",
+      "texto": "{nome} está sentada sozinha na arquibancada vazia, olhando para a pista. Ela não está acostumada a ver as costas das outras.",
+      "quando": {"apos_derrota": true},
+      "escolhas": [
+        {"texto": "Sentar do lado e consolar", "efeitos": {"humor": 2, "afinidade": 10}, "resultado": "Vocês conversam até escurecer. Ela vai embora sorrindo de novo."},
+        {"texto": "Deixar ela treinar sozinha", "efeitos": {"det": 25, "energia": -10}, "resultado": "Ela corre volta atrás de volta até as pernas pedirem para parar. Amanhã vai ser diferente."}
+      ]
+    },
+    {
+      "id": "lira_rival",
+      "garota": "Lira Alazã",
+      "titulo": "Rival declarada",
+      "texto": "Polaris Moura, a campeã do ano passado, passa por {nome} no corredor e para. — Você é a que larga na frente, não é? Vamos ver até onde aguenta.",
+      "quando": {"turno_min": 14},
+      "escolhas": [
+        {"texto": "\"Até a linha de chegada.\"", "efeitos": {"det": 20, "humor": 1}, "resultado": "Polaris sorri de leve e vai embora. {nome} passa o resto do dia elétrica."},
+        {"texto": "Observar o jeito dela correr", "efeitos": {"int": 20}, "resultado": "{nome} assiste ao treino de Polaris e anota tudo o que pode usar no Grande Prêmio."}
+      ]
+    },
+    {
+      "id": "nashira_caderno",
+      "garota": "Nashira Tordilha",
+      "titulo": "O caderno perdido",
+      "texto": "Você encontra o caderno de anotações de {nome} esquecido no vestiário. Ele está aberto numa página cheia de setas e nomes.",
+      "quando": {"turno_min": 2},
+      "escolhas": [
+        {"texto": "Devolver sem ler", "efeitos": {"humor": 1, "afinidade": 15}, "resultado": "{nome} fica vermelha e agradece baixinho. Na semana seguinte, ela te mostra uma página de propósito."},
+        {"texto": "Dar uma olhada", "chance": 0.5, "efeitos": {"int": 25}, "efeitos_falha": {"int": 25, "humor": -1}, "resultado": "As anotações são brilhantes. Você aprende muito sobre ritmo de corrida.", "resultado_falha": "As anotações são brilhantes, mas {nome} te pega lendo e fica emburrada."}
+      ]
+    },
+    {
+      "id": "nashira_plano",
+      "garota": "Nashira Tordilha",
+      "titulo": "Plano perfeito",
+      "texto": "{nome} aparece com uma tabela de treinos para as próximas semanas, cada uma com um objetivo diferente.",
+      "quando": {"turno_min": 4},
+      "escolhas": [
+        {"texto": "Seguir o plano dela", "efeitos": {"nivel_treino": 1}, "resultado": "O plano funciona. O treino que vocês mais repetem rende ainda mais."},
+        {"texto": "Agradecer, mas improvisar", "efeitos": {"humor": 1}, "resultado": "{nome} suspira, mas parece aliviada por não ter que seguir a tabela à risca."}
+      ]
+    },
+    {
+      "id": "nashira_falha",
+      "garota": "Nashira Tordilha",
+      "titulo": "Quando o plano falha",
+      "texto": "Depois da corrida, {nome} folheia o caderno sem parar. — Eu tinha previsto tudo. O que deu errado?",
+      "quando": {"apos_derrota": true},
+      "escolhas": [
+        {"texto": "Ensinar a improvisar", "efeitos": {"det": 25}, "resultado": "Vocês treinam sem plano nenhum. Ela odeia, mas fica mais firme quando a corrida sai do roteiro."},
+        {"texto": "Refazer o plano juntas", "efeitos": {"int": 25}, "resultado": "Uma página nova, mais completa. {nome} volta a sorrir."}
+      ]
+    },
+    {
+      "id": "mira_perdida",
+      "garota": "Mira Pampa",
+      "titulo": "Perdida no caminho",
+      "texto": "O treino começa e nada de {nome}. Uma mensagem chega: \"acho que entrei no prédio errado... tem muitas plantas aqui\".",
+      "quando": {"turno_min": 2},
+      "escolhas": [
+        {"texto": "Ir buscá-la", "efeitos": {"afinidade": 15, "humor": 1, "perde_turno": true}, "resultado": "Ela estava na estufa, encantada com as flores. A semana de treino foi embora, mas ela não para de agradecer."},
+        {"texto": "Deixar ela achar o caminho", "efeitos": {"int": 20, "humor": -1}, "resultado": "{nome} chega uma hora depois, cansada mas orgulhosa de ter decorado o mapa do campus."}
+      ]
+    },
+    {
+      "id": "mira_nuvem",
+      "garota": "Mira Pampa",
+      "titulo": "Nuvem em forma de cavalo",
+      "texto": "No meio do aquecimento, {nome} para e aponta para o céu. — Olha, aquela nuvem está galopando!",
+      "quando": {"turno_min": 3},
+      "escolhas": [
+        {"texto": "Sentar junto e olhar", "efeitos": {"humor": 2, "energia": -5}, "resultado": "Vocês ficam deitadas na grama inventando formas até o fim do treino."},
+        {"texto": "Puxar de volta para o treino", "efeitos": {"est": 20}, "resultado": "{nome} faz bico, mas termina a série inteira. A nuvem continua lá quando acabam."}
+      ]
+    },
+    {
+      "id": "mira_virada",
+      "garota": "Mira Pampa",
+      "titulo": "A outra Mira",
+      "texto": "Depois da vitória, {nome} fala baixinho: — Sabe... eu gosto de correr lá atrás. Dá para ver todo mundo. E quando eu passo, ninguém espera.",
+      "quando": {"apos_vitoria": true},
+      "escolhas": [
+        {"texto": "\"Então corra do seu jeito.\"", "efeitos": {"det": 40, "humor": 1}, "resultado": "Algo muda no olhar dela. A tímida do vestiário e a fera do sprint são a mesma pessoa."}
+      ]
+    },
+    {
+      "id": "gen_almoco",
+      "garota": null,
+      "titulo": "Almoço no refeitório",
+      "texto": "{outra} acena da mesa do canto e oferece a cadeira vazia ao lado.",
+      "quando": {},
+      "escolhas": [
+        {"texto": "Sentar com ela", "efeitos": {"humor": 1, "afinidade": 10}, "resultado": "{nome} e {outra} passam o almoço rindo das histórias da academia."},
+        {"texto": "Comer rápido e voltar a treinar", "efeitos": {"est": 12, "energia": -5}, "resultado": "{nome} usa o tempo extra para uma corrida leve."}
+      ]
+    },
+    {
+      "id": "gen_dupla",
+      "garota": null,
+      "titulo": "Treino em dupla",
+      "texto": "{outra} está fazendo tiros na reta e pergunta se {nome} quer marcar o tempo junto.",
+      "quando": {},
+      "escolhas": [
+        {"texto": "Correr lado a lado", "efeitos": {"vel": 12, "afinidade": 8, "energia": -8}, "resultado": "As duas se puxam a cada tiro. Ninguém quer ser a primeira a desistir."},
+        {"texto": "Só cronometrar e anotar", "efeitos": {"int": 12, "afinidade": 5}, "resultado": "{nome} percebe detalhes da passada de {outra} que nunca tinha notado."}
+      ]
+    },
+    {
+      "id": "gen_chuva",
+      "garota": null,
+      "titulo": "Chuva de repente",
+      "texto": "Uma chuva forte cai no meio do treino. {outra} continua na pista, encharcada.",
+      "quando": {},
+      "escolhas": [
+        {"texto": "Treinar na chuva com ela", "efeitos": {"det": 15, "afinidade": 8, "energia": -10}, "resultado": "Lama até o joelho, mas {nome} e {outra} terminam rindo."},
+        {"texto": "Chamar para se abrigar", "efeitos": {"energia": 10, "afinidade": 5}, "resultado": "As duas tomam chocolate quente olhando a chuva pela janela."}
+      ]
+    },
+    {
+      "id": "gen_conselho",
+      "garota": null,
+      "titulo": "Pedido de conselho",
+      "texto": "{outra} anda insegura com a próxima prova e pergunta o que {nome} faria no lugar dela.",
+      "quando": {"turno_min": 4},
+      "escolhas": [
+        {"texto": "Dar um conselho sincero", "efeitos": {"afinidade": 12, "humor": 1}, "resultado": "{outra} agradece com um abraço desajeitado."},
+        {"texto": "\"Na pista eu te mostro.\"", "chance": 0.5, "efeitos": {"pod": 15, "afinidade": 5}, "efeitos_falha": {"pod": 15, "afinidade": -5}, "resultado": "{outra} entende como provocação amigável e aceita o desafio.", "resultado_falha": "{outra} leva para o lado pessoal e passa o dia emburrada."}
+      ]
+    },
+    {
+      "id": "gen_cansaco",
+      "garota": null,
+      "titulo": "Pernas pesadas",
+      "texto": "{nome} acorda com as pernas pesando. {outra} sugere uma sessão de alongamento no gramado.",
+      "quando": {"energia_max": 50},
+      "escolhas": [
+        {"texto": "Alongar com {outra}", "efeitos": {"energia": 15, "afinidade": 6}, "resultado": "Meia hora depois, as pernas de {nome} parecem novas."},
+        {"texto": "Ignorar e seguir o dia", "efeitos": {"det": 10, "humor": -1}, "resultado": "{nome} aguenta firme, mas fica mal-humorada."}
+      ]
+    },
+    {
+      "id": "gen_festival",
+      "garota": null,
+      "titulo": "Festival da academia",
+      "texto": "A academia monta barracas no pátio. {outra} quer ir à barraca de doces de qualquer jeito.",
+      "quando": {"turno_min": 6},
+      "escolhas": [
+        {"texto": "Ir junto ao festival", "efeitos": {"humor": 2, "afinidade": 10, "energia": -5}, "resultado": "Algodão-doce, jogos e uma foto que {outra} já colocou de papel de parede."},
+        {"texto": "Ficar treinando", "efeitos": {"est": 10, "pod": 10, "humor": -1}, "resultado": "Do campo dá para ouvir a música do festival. {nome} treina com um pouco de inveja."}
+      ]
+    }
+  ]
+}
