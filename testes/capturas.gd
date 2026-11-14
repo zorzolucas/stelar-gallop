@@ -71,6 +71,13 @@ func _initialize() -> void:
 			_resolver_encontro()
 			main.mostrar_carreira(""),
 		func():
+			_salvar("5b_amuleto")
+			var c = main.carreira
+			if not c.oferta_amuleto.is_empty():
+				c.escolher_amuleto(c.oferta_amuleto[0])
+			c.pontos += 300
+			main.mostrar_carreira(""),
+		func():
 			_salvar("6_mapa")
 			var c = main.carreira
 			var cols: Array = c.opcoes_mapa()
@@ -118,6 +125,7 @@ func _avancar_ate(alvo: int) -> void:
 				var sim := SimCorrida.new(d.field, d.distancia, d.seed, d.clima)
 				var pos: int = sim.rodar_ate_o_fim().find(0) + 1
 				c.registrar_corrida(maxi(1, pos - 4))  # empurra para cumprir os objetivos
+			"amuleto": c.escolher_amuleto(c.oferta_amuleto[0], c.amuletos[0] if c.amuletos.size() >= 6 else "")
 			"sem_fama": c.fama = 2000
 			_:
 				if c.energia < 45:

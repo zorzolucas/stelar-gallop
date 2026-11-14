@@ -1,0 +1,21 @@
+{
+  "_doc": "Habilidades genéricas compráveis na carreira (GDD §3.4, corrida.md §7). fase: 0 Largada, 1 Meio, 2 Final, 3 Sprint. tipo: vel (+m/s x E por dur s) ou hp (+fração do fôlego máximo). cond: posição (pos_max/pos_min, contando de 1) ou dist_min (m). As 5 'referencia' são as que todas as NPCs têm. Valores (inicial).",
+  "limite": 6,
+  "iniciais": ["folego_extra", "reta_decisiva"],
+  "lista": [
+    {"id": "folego_extra", "nome": "Fôlego Extra", "fase": 1, "tipo": "hp", "val": 0.06, "dur": 0, "custo": 120, "referencia": true, "descricao": "No Meio, recupera 6% do fôlego."},
+    {"id": "passada_firme", "nome": "Passada Firme", "fase": 1, "tipo": "vel", "val": 0.8, "dur": 4.0, "custo": 120, "referencia": true, "descricao": "No Meio, acelera um pouco por alguns segundos."},
+    {"id": "curva_limpa", "nome": "Curva Limpa", "fase": 2, "tipo": "vel", "val": 0.8, "dur": 4.0, "custo": 120, "referencia": true, "descricao": "No Final, acelera um pouco por alguns segundos."},
+    {"id": "segundo_folego", "nome": "Segundo Fôlego", "fase": 2, "tipo": "hp", "val": 0.04, "dur": 0, "custo": 100, "referencia": true, "descricao": "No Final, recupera 4% do fôlego."},
+    {"id": "reta_decisiva", "nome": "Reta Decisiva", "fase": 3, "tipo": "vel", "val": 1.0, "dur": 4.0, "custo": 150, "referencia": true, "descricao": "No Sprint, acelera por alguns segundos."},
+    {"id": "largada_rapida", "nome": "Largada Rápida", "fase": 0, "tipo": "vel", "val": 0.9, "dur": 4.0, "custo": 100, "descricao": "Na Largada, sai mais rápido."},
+    {"id": "ritmo_cruzeiro", "nome": "Ritmo de Cruzeiro", "fase": 1, "tipo": "hp", "val": 0.09, "dur": 0, "custo": 140, "cond": {"dist_min": 2400}, "descricao": "No Meio de corridas de 2400 m ou mais, recupera 9% do fôlego."},
+    {"id": "arrancada_final", "nome": "Arrancada Final", "fase": 3, "tipo": "vel", "val": 1.5, "dur": 4.0, "custo": 200, "cond": {"pos_min": 4}, "descricao": "No Sprint, se estiver do 4º lugar para trás, acelera forte."},
+    {"id": "frente_firme", "nome": "Frente Firme", "fase": 2, "tipo": "vel", "val": 1.2, "dur": 5.0, "custo": 180, "cond": {"pos_max": 2}, "descricao": "No Final, se estiver em 1º ou 2º, segura a ponta acelerando."},
+    {"id": "respiro_curto", "nome": "Respiro Curto", "fase": 3, "tipo": "hp", "val": 0.05, "dur": 0, "custo": 120, "descricao": "No Sprint, recupera 5% do fôlego."}
+  ],
+  "pontos_por_categoria": {"estreia": 40, "aberta": 60, "prata": 90, "ouro": 130, "gp1": 200, "gp2": 200},
+  "pontos_por_posicao": [1.0, 0.8, 0.6, 0.5, 0.5],
+  "pontos_resto": 0.3,
+  "desconto_biblioteca": 0.3
+}

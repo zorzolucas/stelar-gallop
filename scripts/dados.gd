@@ -14,6 +14,8 @@ var iniciais: Array = []
 var rivais: Array = []
 var encontros: Dictionary = {}
 var calendario: Dictionary = {}
+var habilidades: Dictionary = {}
+var amuletos: Dictionary = {}
 
 
 func _ready() -> void:
@@ -22,6 +24,22 @@ func _ready() -> void:
 	rivais = _ler_json("res://data/rivais.json")
 	encontros = _ler_json("res://data/encontros.json")
 	calendario = _ler_json("res://data/calendario.json")
+	habilidades = _ler_json("res://data/habilidades.json")
+	amuletos = _ler_json("res://data/amuletos.json")
+
+
+func habilidade(id: String) -> Dictionary:
+	for h in habilidades.get("lista", []):
+		if h.id == id:
+			return h
+	return {}
+
+
+func amuleto(id: String) -> Dictionary:
+	for a in amuletos.get("lista", []):
+		if a.id == id:
+			return a
+	return {}
 
 
 func _ler_json(caminho: String) -> Variant:

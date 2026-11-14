@@ -32,7 +32,6 @@ const BAL := {
 	"energia_corrida": 15,
 	"energia_seguidas": 10,    # extra na 3ª corrida em 3 turnos seguidos
 	"humor_seguidas": 0.3,
-	"premio_desafio": 15.0,    # atributos em todos, até os amuletos (etapa 3b)
 	# moeda (GDD §6.1)
 	"moeda_por_fama": 5,       # 1 moeda a cada 5 de fama ganha numa corrida
 	"moeda_base": 80,          # por terminar a carreira (mesmo falhando)
@@ -101,6 +100,11 @@ var encontro_pendente := {}  # {id, tipo: "encontro"|"misterio"|"vespera", outra
 var vinculo := 0
 var limite := 1000.0
 var moeda_corridas := 0      # prêmios das corridas desta carreira
+var pontos := 0              # pontos de habilidade (GDD §3.4)
+var habilidades: Array = []  # ids das genéricas compradas (data/habilidades.json)
+var amuletos: Array = []     # ids dos amuletos equipados (data/amuletos.json)
+var oferta_amuleto: Array = []  # amuletos oferecidos, esperando a escolha
+var estrela_usada := false
 
 
 func _init(g: Dictionary, ini: Dictionary, semente_: int = 0, vinculo_: int = 0) -> void:
@@ -122,6 +126,7 @@ func _init(g: Dictionary, ini: Dictionary, semente_: int = 0, vinculo_: int = 0)
 	for colega in enc.get("colegas", []):
 		if colega != nome:
 			afinidade[colega] = int(iniciais_af.get(colega, 0))
+	habilidades = Dados.habilidades.get("iniciais", []).duplicate()
 	objetivos = Calendario.objetivos(semente, aptidao, distancia, piso)
 	for i in Dados.calendario.trechos.size():
 		mapas.append(Calendario.gerar_mapa(semente, i))
@@ -188,10 +193,12 @@ func acampamento() -> String:
 
 
 ## O que a tela precisa resolver antes das ações normais deste turno:
-## "encontro", "mapa", "ferias", "corrida", "objetivo", "sem_fama" ou "" (ações).
+## "encontro", "amuleto", "mapa", "ferias", "corrida", "objetivo", "sem_fama" ou "" (ações).
 func pendencia() -> String:
 	if not encontro_pendente.is_empty():
 		return "encontro"
+	if not oferta_amuleto.is_empty():
+		return "amuleto"
 	if not corrida_atual.is_empty():
 		return "corrida"
 	var t := trecho()
@@ -254,6 +261,8 @@ func nivel_efetivo(t: String) -> int:
 		"praia": n += 1 if t in ["vel", "pod"] else 0
 	if serra and t in ["est", "det"]:
 		n += 1
+	if _efeito("nivel").has(t):
+		n += 1
 	return mini(5, n)
 
 
@@ -270,13 +279,15 @@ func custo(t: String) -> int:
 	var c: int = BAL.custo_energia_int if t == "int" else BAL.custo_energia
 	if clima() == "calor":
 		c += 5
+	c += int(_soma("custo_treino"))
 	return c
 
 
 func ganho_previsto(t: String) -> Dictionary:
 	var m: float = (1.0 + BAL.bonus_nivel * (nivel_efetivo(t) - 1)) * HUMOR_TREINO[humor]
 	if t in naturais:
-		m *= 1.0 + BAL.bonus_natural
+		m *= 1.0 + (_soma("natural") if tem_efeito("natural") else BAL.bonus_natural)
+	m *= 1.0 + _soma("ganho_todos")
 	if lesionada:
 		m *= BAL.corte_lesao
 	if duplas.has(t):
@@ -284,11 +295,16 @@ func ganho_previsto(t: String) -> Dictionary:
 	if tipo_no() == "festival":
 		m *= BAL.festival_treino
 	match clima():
-		"chuva": m *= 0.9 if t == "vel" else 1.0
+		"chuva": m *= 0.9 if t == "vel" and not tem_efeito("capa_chuva") else 1.0
 		"vento": m *= 1.1 if t == "int" else 1.0
 	var tr: Dictionary = TREINOS[t]
-	return {tr.principal: BAL.ganho_principal * m * _retorno(tr.principal),
-		tr.secundario: BAL.ganho_secundario * m * _retorno(tr.secundario)}
+	var extra := {}  # bônus por atributo (ex.: Ferradura de Bronze, +5% de Velocidade)
+	for a in amuletos:
+		var ganhos: Dictionary = Dados.amuleto(a).get("efeito", {}).get("ganho", {})
+		for k in ganhos:
+			extra[k] = extra.get(k, 0.0) + float(ganhos[k])
+	return {tr.principal: BAL.ganho_principal * m * _retorno(tr.principal) * (1.0 + extra.get(tr.principal, 0.0)),
+		tr.secundario: BAL.ganho_secundario * m * _retorno(tr.secundario) * (1.0 + extra.get(tr.secundario, 0.0))}
 
 
 ## Retorno decrescente: quanto maior o atributo, menos o treino rende (curva do calendário §2.1).
@@ -313,6 +329,11 @@ func treinar(t: String) -> String:
 	energia = maxi(0, energia - custo(t))
 	if era_serra:
 		serra = false
+	var salvou_estrela := false
+	if falha and tem_efeito("estrela") and not estrela_usada:
+		falha = false
+		estrela_usada = true
+		salvou_estrela = true
 	if falha:
 		attrs[t] -= BAL.perda_falha
 		var outro: String = SimCorrida.KEYS[r.randi() % 5]
@@ -336,6 +357,8 @@ func treinar(t: String) -> String:
 		partes.append("+%d %s" % [v, Dados.ATTR_CURTO[k]])
 	usos_treino[t] += 1
 	var txt := "Treino de %s: %s." % [Dados.ATTR_NOME[t], ", ".join(partes)]
+	if salvou_estrela:
+		txt = "O treino ia falhar, mas a Estrela Cadente brilhou! " + txt
 	if duplas.has(t):
 		var colega: String = duplas[t]
 		_mudar_afinidade(colega, BAL.afinidade_por_dupla)
@@ -351,6 +374,9 @@ func descanso_previsto() -> int:
 		d *= BAL.descanso_extra
 	if clima() == "frio":
 		d *= 0.9
+	for a in amuletos:
+		d *= float(Dados.amuleto(a).get("efeito", {}).get("descanso_mult", 1.0))
+	d += _soma("descanso")
 	return roundi(d)
 
 
@@ -404,7 +430,17 @@ func fama_prevista(c: Dictionary, posicao: int = 1) -> int:
 	var cal: Dictionary = Dados.calendario
 	var base: float = cal.categorias[c.cat].fama
 	var mult: float = cal.fama_por_posicao[posicao - 1] if posicao <= cal.fama_por_posicao.size() else cal.fama_resto
-	return roundi(base * mult)
+	return roundi(base * mult * (1.0 + _soma("fama")))
+
+
+func pontos_previstos(c: Dictionary, posicao: int = 1) -> int:
+	var h: Dictionary = Dados.habilidades
+	var mult: float = h.pontos_por_posicao[posicao - 1] if posicao <= h.pontos_por_posicao.size() else h.pontos_resto
+	return roundi(float(h.pontos_por_categoria[c.cat]) * mult)
+
+
+func energia_corrida() -> int:
+	return maxi(0, BAL.energia_corrida + int(_soma("energia_corrida")))
 
 
 func escolher_corrida(c: Dictionary) -> void:
@@ -427,6 +463,8 @@ func montar_corrida(elenco: Array) -> Dictionary:
 		"nome": nome, "estilo": estilo, "attrs": attrs.duplicate(),
 		"mult": Dados.APT[aptidao[c.dist]] * Dados.APT[aptidao[c.piso]] * HUMOR_CORRIDA[humor],
 		"unica": unica, "jogadora": true,
+		"habilidades": habilidades.map(func(id): return Dados.habilidade(id)),
+		"amuletos": efeitos_de_corrida(),
 	}]
 	var pool := elenco.filter(func(g): return g.nome != nome)
 	# embaralha com a semente, para repetir no mesmo save
@@ -448,9 +486,6 @@ func montar_corrida(elenco: Array) -> Dictionary:
 		var adv := _adversaria(campea, forca * cal.forca_rival, "", c)
 		field.append(adv)
 		vagas -= 1
-	if c.get("desafio", false):
-		# a elite é a primeira adversária, já com +20%
-		pass
 	var v: float = cal.variacao_npc
 	for g in pool.slice(0, vagas):
 		field.append(_adversaria(g, forca * r.randf_range(1.0 - v, 1.0 + v), "", c))
@@ -483,13 +518,16 @@ func registrar_corrida(posicao: int) -> String:
 	fama += ganho_fama
 	var premio := ganho_fama / BAL.moeda_por_fama
 	moeda_corridas += premio
-	var custo_e: int = BAL.energia_corrida
+	var ganho_pontos := pontos_previstos(c, posicao)
+	pontos += ganho_pontos
+	var custo_e: int = energia_corrida()
 	var seguida := _corrida_seguida()
 	if seguida:
 		custo_e += BAL.energia_seguidas
 	energia = maxi(0, energia - custo_e)
 	turnos_com_corrida.append(turno)
-	var txt := "%s terminou em %dº na %s. +%d de fama, %d moedas." % [_primeiro_nome(), posicao, c.nome, ganho_fama, premio]
+	var txt := "%s terminou em %dº na %s. +%d de fama, +%d pontos de habilidade, %d moedas." % [
+		_primeiro_nome(), posicao, c.nome, ganho_fama, ganho_pontos, premio]
 	if seguida and _rng("seguidas").randf() < BAL.humor_seguidas:
 		_mudar_humor(-1)
 		txt += " Três corridas seguidas pesaram no humor."
@@ -502,17 +540,18 @@ func registrar_corrida(posicao: int) -> String:
 		if obj.has("maratona"):
 			var boas := resultados.filter(func(x): return x.turno >= 5 and x.posicao <= 5).size()
 			ok = boas + (1 if posicao <= 5 else 0) >= int(obj.maratona)
+	var coracao := tem_efeito("coracao")
 	if posicao == 1:
-		_mudar_humor(1)
+		_mudar_humor(2 if coracao else 1)
+	elif coracao and posicao > 3:
+		_mudar_humor(-2)
 	elif e_obj and not ok:
 		_mudar_humor(-1)
 	if c.get("desafio", false):
 		desafios_feitos.append(turno)
 		if posicao <= 3:
-			for k in attrs:
-				attrs[k] += BAL.premio_desafio
-			_limitar()
-			txt += " Venceu o Desafio: +%d em todos os atributos!" % BAL.premio_desafio
+			oferecer_amuleto(3, false)
+			txt += " Top 3 no Desafio: escolha um amuleto!"
 		else:
 			_mudar_humor(-1)
 			txt += " Ficou fora do top 3 no Desafio e o humor caiu."
@@ -522,6 +561,13 @@ func registrar_corrida(posicao: int) -> String:
 		falhou_objetivo = true
 		terminou = true
 		return txt + " O objetivo era: %s. A carreira acaba aqui." % obj.texto.to_lower()
+	if e_obj and turno < BAL.turnos:
+		# objetivos 1 a 4 dão um amuleto; os difíceis oferecem 4, com pelo menos 1 incomum ou raro
+		var dificil: bool = obj.get("dificil", false)
+		oferecer_amuleto(4 if dificil else 3, dificil)
+		txt += " Objetivo cumprido! Escolha um amuleto."
+		_fim_turno(BAL.chance_encontro)
+		return txt
 	_fim_turno(BAL.chance_encontro)
 	return txt + (" Objetivo cumprido!" if e_obj else "")
 
@@ -658,7 +704,7 @@ func texto(t: String) -> String:
 
 
 func _mult_afinidade() -> float:
-	var m := 1.0
+	var m := 1.0 + _soma("afinidade")
 	if tipo_no() == "festival":
 		m *= 2.0
 	if clima() == "estrelas":
@@ -676,6 +722,7 @@ func escolher(i: int) -> String:
 	var resultado := texto(esc.resultado if deu_certo else esc.get("resultado_falha", esc.resultado))
 	var outra: String = encontro_pendente.get("outra", "")
 	var partes := []
+	var faltou_pontos := false
 	for k in ef:
 		var v = ef[k]
 		match k:
@@ -702,6 +749,20 @@ func escolher(i: int) -> String:
 				partes.append("fama %+d" % v)
 			"serra":
 				serra = true
+			"pontos":
+				if pontos + int(v) < 0:
+					partes.append("sem pontos suficientes, nada mudou")
+					faltou_pontos = true
+					continue
+				pontos += int(v)
+				partes.append("pontos de habilidade %+d" % v)
+			"habilidade":
+				partes.append(_ganhar_habilidade(str(v)))
+			"amuleto":
+				if faltou_pontos:
+					continue
+				oferecer_amuleto(3, false)
+				partes.append("escolha um amuleto")
 			"unico_garantido":
 				unico_garantido = true
 			"perde_turno":
@@ -730,7 +791,8 @@ func _mudar_afinidade(colega: String, d: int) -> void:
 const CAMPOS_SAVE := ["attrs", "energia", "humor", "lesionada", "turno", "usos_treino", "fama",
 	"rota", "acampamentos", "resultados", "turnos_com_corrida", "corrida_atual", "desafios_feitos",
 	"serra", "unico_garantido", "terminou", "falhou_objetivo", "afinidade", "vistos",
-	"ultimo_encontro", "ultima_corrida", "duplas", "encontro_pendente", "moeda_corridas"]
+	"ultimo_encontro", "ultima_corrida", "duplas", "encontro_pendente", "moeda_corridas",
+	"pontos", "habilidades", "amuletos", "oferta_amuleto", "estrela_usada"]
 
 
 ## Salva também a carreira terminada: ela só é apagada depois que o jogador decide
@@ -771,7 +833,7 @@ static func carregar() -> Carreira:
 		if d.has(campo):
 			c.set(campo, d[campo])
 	# o JSON devolve todos os números como float
-	for campo in ["energia", "humor", "turno", "fama", "moeda_corridas"]:
+	for campo in ["energia", "humor", "turno", "fama", "moeda_corridas", "pontos"]:
 		c.set(campo, int(c.get(campo)))
 	for t in c.usos_treino:
 		c.usos_treino[t] = int(c.usos_treino[t])
@@ -810,4 +872,104 @@ func versao_salva() -> Dictionary:
 	for k in attrs:
 		a[k] = roundi(attrs[k])
 	return {"attrs": a, "nota": Dados.nota(attrs), "objetivos": objetivos_cumpridos(),
-		"fama": fama, "resultados": resultados.duplicate(true), "vinculo": vinculo, "semente": str(semente)}
+		"fama": fama, "habilidades": habilidades.duplicate(), "resultados": resultados.duplicate(true),
+		"vinculo": vinculo, "semente": str(semente)}
+
+
+# ---------- amuletos (calendario.md §5) ----------
+
+func _efeito(chave: String) -> Array:
+	var lista := []
+	for a in amuletos:
+		var ef: Dictionary = Dados.amuleto(a).get("efeito", {})
+		if ef.has(chave):
+			lista.append(ef[chave])
+	return lista
+
+
+func tem_efeito(chave: String) -> bool:
+	return not _efeito(chave).is_empty()
+
+
+func _soma(chave: String) -> float:
+	var total := 0.0
+	for v in _efeito(chave):
+		total += float(v)
+	return total
+
+
+## Efeitos de corrida dos amuletos (os de estilo só são oferecidos para o estilo certo).
+func efeitos_de_corrida() -> Array:
+	return _efeito("corrida")
+
+
+## Sorteia n amuletos que ela ainda não tem. Amuletos de estilo só saem para o estilo certo.
+func oferecer_amuleto(n: int, garantir_raro: bool) -> void:
+	var r := Calendario.rng(semente, ["amuleto", turno, amuletos.size()])
+	var dados_a: Dictionary = Dados.amuletos
+	var pool: Array = dados_a.lista.filter(func(a): return not a.id in amuletos and (not a.has("estilo") or a.estilo == estilo))
+	var oferta := []
+	for i in n:
+		if pool.is_empty():
+			break
+		var pesos := {}
+		for j in pool.size():
+			pesos[str(j)] = float(dados_a.peso_tipo[pool[j].tipo])
+		var escolhido: Dictionary = pool.pop_at(int(Calendario.sortear_peso(r, pesos)))
+		oferta.append(escolhido.id)
+	if garantir_raro and not oferta.any(func(id): return Dados.amuleto(id).tipo in ["estilo", "raro"]):
+		var especiais := pool.filter(func(a): return a.tipo in ["estilo", "raro"])
+		if not especiais.is_empty() and not oferta.is_empty():
+			oferta[-1] = especiais[r.randi() % especiais.size()].id
+	oferta_amuleto = oferta
+
+
+## Equipa o amuleto escolhido. Com 6 equipados, troca pelo indicado em "no_lugar_de".
+func escolher_amuleto(id: String, no_lugar_de: String = "") -> String:
+	oferta_amuleto = []
+	var nome_a: String = Dados.amuleto(id).nome
+	if amuletos.size() < int(Dados.amuletos.limite):
+		amuletos.append(id)
+		return "%s equipou o amuleto %s." % [_primeiro_nome(), nome_a]
+	var i := amuletos.find(no_lugar_de)
+	if i < 0:
+		return "O amuleto %s foi deixado de lado." % nome_a
+	amuletos[i] = id
+	return "%s trocou %s por %s." % [_primeiro_nome(), Dados.amuleto(no_lugar_de).nome, nome_a]
+
+
+func descartar_oferta() -> String:
+	oferta_amuleto = []
+	return "Nenhum amuleto novo desta vez."
+
+
+# ---------- habilidades (GDD §3.4) ----------
+
+func custo_habilidade(id: String) -> int:
+	var c: float = Dados.habilidade(id).custo
+	if tipo_no() == "biblioteca":
+		c *= 1.0 - float(Dados.habilidades.desconto_biblioteca)
+	return roundi(c)
+
+
+func pode_comprar(id: String) -> bool:
+	return not id in habilidades and habilidades.size() < int(Dados.habilidades.limite) and pontos >= custo_habilidade(id)
+
+
+func comprar_habilidade(id: String) -> String:
+	if not pode_comprar(id):
+		return ""
+	pontos -= custo_habilidade(id)
+	habilidades.append(id)
+	return "%s aprendeu %s." % [_primeiro_nome(), Dados.habilidade(id).nome]
+
+
+## Ganha uma habilidade de graça; se já tiver ou estiver no limite, vira pontos.
+func _ganhar_habilidade(id: String) -> String:
+	var h := Dados.habilidade(id)
+	if id in habilidades or habilidades.size() >= int(Dados.habilidades.limite):
+		pontos += int(h.custo)
+		return "+%d pontos de habilidade" % h.custo
+	habilidades.append(id)
+	return "aprendeu %s" % h.nome
+

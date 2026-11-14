@@ -1,0 +1,22 @@
+{
+  "_doc": "Amuletos (calendario.md §5): valem até o fim da carreira e não passam para a garota salva. tipo: simples, troca, estilo (só aparece para garotas daquele estilo), raro. Os efeitos são lidos por carreira.gd e sim_corrida.gd pela chave 'efeito'. Valores (inicial).",
+  "limite": 6,
+  "peso_tipo": {"simples": 6, "troca": 5, "estilo": 3, "raro": 1},
+  "lista": [
+    {"id": "ferradura", "nome": "Ferradura de Bronze", "tipo": "simples", "descricao": "Ganho de Velocidade +5%.", "efeito": {"ganho": {"vel": 0.05}}},
+    {"id": "fita_azul", "nome": "Fita Azul", "tipo": "simples", "descricao": "+10% de fama em toda corrida.", "efeito": {"fama": 0.1}},
+    {"id": "garrafinha", "nome": "Garrafinha", "tipo": "simples", "descricao": "Descansar recupera +10 de energia.", "efeito": {"descanso": 10}},
+    {"id": "capa_chuva", "nome": "Capa de Chuva", "tipo": "simples", "descricao": "A chuva não tira ganho do treino de Velocidade.", "efeito": {"capa_chuva": true}},
+    {"id": "sapatilha", "nome": "Sapatilha Leve", "tipo": "simples", "descricao": "Correr gasta 5 de energia a menos.", "efeito": {"energia_corrida": -5}},
+    {"id": "laco", "nome": "Laço de Amizade", "tipo": "simples", "descricao": "Encontros dão +50% de afinidade.", "efeito": {"afinidade": 0.5}},
+    {"id": "sino_vento", "nome": "Sino de Vento", "tipo": "troca", "descricao": "Treino de Poder conta 1 nível acima, mas Descansar recupera 20% menos.", "efeito": {"nivel": "pod", "descanso_mult": 0.8}},
+    {"id": "coracao_fogo", "nome": "Coração de Fogo", "tipo": "troca", "descricao": "Vitória sobe o humor 2 níveis; ficar fora do top 3 derruba 2.", "efeito": {"coracao": true}},
+    {"id": "treino_pesado", "nome": "Treino Pesado", "tipo": "troca", "descricao": "Todo treino rende +10%, mas gasta +4 de energia.", "efeito": {"ganho_todos": 0.1, "custo_treino": 4}},
+    {"id": "lenco_ponta", "nome": "Lenço da Ponta", "tipo": "estilo", "estilo": "pon", "descricao": "Ponteira: na Largada, +5% de velocidade se estiver no top 3.", "efeito": {"corrida": "lenco"}},
+    {"id": "espora_prata", "nome": "Espora de Prata", "tipo": "estilo", "estilo": "fec", "descricao": "Fechadora: no Sprint, gasta 10% menos fôlego.", "efeito": {"corrida": "espora"}},
+    {"id": "bussola", "nome": "Bússola", "tipo": "estilo", "estilo": "per", "descricao": "Perseguidora: chance de ficar bloqueada −30%.", "efeito": {"corrida": "bussola"}},
+    {"id": "trevo_torto", "nome": "Trevo Torto", "tipo": "estilo", "estilo": "arr", "descricao": "Arrancadora: habilidades do Final disparam com +15% de chance.", "efeito": {"corrida": "trevo"}},
+    {"id": "estrela_cadente", "nome": "Estrela Cadente", "tipo": "raro", "descricao": "Uma vez por carreira, uma falha de treino vira sucesso.", "efeito": {"estrela": true}},
+    {"id": "constelacao", "nome": "Constelação", "tipo": "raro", "descricao": "Os 2 treinos naturais rendem +20% em vez de +10%.", "efeito": {"natural": 0.2}}
+  ]
+}

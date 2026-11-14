@@ -51,6 +51,9 @@ const UNICAS := {
 	"nunca": {"nome": "Nunca Desisto", "fase": 3, "val": 1.2, "dur": 6.0},
 }
 
+## As 5 genéricas de referência no formato de habilidade, usadas por quem não tem lista própria.
+static var REFERENCIA: Array = GENERICAS.map(func(s): return {"fase": s[0], "tipo": s[1], "val": s[2], "dur": s[3], "nome": s[4]})
+
 var D: float
 var t := 0.0
 var done := false
@@ -62,7 +65,10 @@ var mult_acel := 1.0
 var mult_bloqueio := 1.0
 
 
-## field: lista de Dictionary {nome, estilo, attrs: {vel..int}, mult, unica?}.
+## field: lista de Dictionary {nome, estilo, attrs: {vel..int}, mult, unica?, habilidades?, amuletos?}.
+## habilidades: lista de {nome, fase, tipo, val, dur, cond?} (data/habilidades.json). Sem ela,
+## a corredora usa as 5 genéricas de referência. amuletos: efeitos de corrida da jogadora
+## ("lenco", "espora", "bussola", "trevo"; calendario.md §5.2).
 func _init(field: Array, distancia: float, seed: int = 0, clima: String = "") -> void:
 	D = distancia
 	if clima == "chuva":
@@ -88,7 +94,20 @@ func _init(field: Array, distancia: float, seed: int = 0, clima: String = "") ->
 			"v": 3.0 * k, "x": 0.0, "t": -1.0, "blk": 0.0, "noise": noise,
 			"chance": chance, "ph": -1, "buff": 0.0, "buff_t": 0.0,
 			"unica": g.get("unica", ""),
+			"skills": g.get("habilidades", REFERENCIA),
+			"amuletos": g.get("amuletos", []),
 		})
+
+
+## Condição de uma habilidade: posição (pos 0 = 1º lugar) ou distância mínima.
+func _condicao_ok(cond: Dictionary, pos: int) -> bool:
+	if cond.has("pos_max") and pos + 1 > int(cond.pos_max):
+		return false
+	if cond.has("pos_min") and pos + 1 < int(cond.pos_min):
+		return false
+	if cond.has("dist_min") and D < float(cond.dist_min):
+		return false
+	return true
 
 
 static func fase(x: float, dist: float) -> int:
@@ -147,14 +166,19 @@ func step() -> Array:
 		var p := fase(r.x, D)
 		if p != r.ph:
 			r.ph = p
-			for s in GENERICAS:
-				if s[0] == p and rng.randf() < r.chance:
-					if s[1] == "hp":
-						r.hp += s[2] * r.hpmax
+			for s in r.skills:
+				if int(s.fase) != p or not _condicao_ok(s.get("cond", {}), i):
+					continue
+				var chance: float = r.chance
+				if p == 2 and "trevo" in r.amuletos:
+					chance += 0.15
+				if rng.randf() < chance:
+					if s.tipo == "hp":
+						r.hp += float(s.val) * r.hpmax
 					else:
-						r.buff = s[2] * k
-						r.buff_t = s[3] / k
-					ev.append({"idx": r.idx, "nome": s[4], "unica": false})
+						r.buff = float(s.val) * k
+						r.buff_t = float(s.dur) / k
+					ev.append({"idx": r.idx, "nome": s.nome, "unica": false})
 			_tenta_unica(r, p, i, order.size(), ev)
 		var vt: float = (V0 + K_VEL * e.vel / 1000.0) * k * RITMO[r.st][p] * (1.0 + r.noise)
 		if p == 2:
@@ -170,11 +194,16 @@ func step() -> Array:
 		if r.buff_t > 0.0:
 			vt += r.buff
 			r.buff_t -= DT
+		if p == 0 and i < 3 and "lenco" in r.amuletos:
+			vt *= 1.05
 		if i > 0 and p >= 1:
 			var f: Dictionary = order[i - 1]
 			var gap: float = f.x - r.x
 			if gap > 0.0 and gap < 2.0 and f.v < vt and r.blk <= 0.0:
-				if rng.randf() < k * BLOCK * mult_bloqueio * (1.0 - e.pod / 1500.0) * (1.0 - e.int / 2000.0):
+				var bloq: float = k * BLOCK * mult_bloqueio * (1.0 - e.pod / 1500.0) * (1.0 - e.int / 2000.0)
+				if "bussola" in r.amuletos:
+					bloq *= 0.7
+				if rng.randf() < bloq:
 					r.blk = 1.0 / k
 			if r.blk > 0.0:
 				vt = minf(vt, f.v)
@@ -190,6 +219,8 @@ func step() -> Array:
 			cost *= 1.2 - e.int / 1500.0
 		if p == 3:
 			cost *= 1.1 - e.det / 2000.0
+			if "espora" in r.amuletos:
+				cost *= 0.9
 		r.hp -= cost * DT
 		r.x += r.v * DT
 		if r.x >= D:
