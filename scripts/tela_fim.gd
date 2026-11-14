@@ -77,4 +77,9 @@ func _ready() -> void:
 	botoes.add_child(UI.botao("Substituir a versão salva" if not salva.is_empty() else "Salvar esta versão", func(): decidiu.emit(true), 20))
 	botoes.add_child(UI.botao("Descartar o resultado", func(): decidiu.emit(false), 20))
 	v.add_child(botoes)
-	add_child(UI.margem(v, 40))
+	# rola se não couber, para os botões de decisão nunca ficarem fora da tela
+	var rolagem := ScrollContainer.new()
+	rolagem.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolagem.add_child(v)
+	add_child(UI.margem(rolagem, 32))
