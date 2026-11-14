@@ -1,21 +1,21 @@
 # Galope Estelar — Elenco
 
-> Versão 0.2 — 2026-11-12. Na v0.2 todas foram renomeadas com nomes de estrelas: Nina → Nashira, Brisa → Mira, Vega → Capela, Tainá → Antares, Cora → Shaula, Estela → Polaris, Íris → Algol. Complementa o [GDD](GDD.md).
-> Os nomes juntam uma **estrela ou constelação** com uma **pelagem** de cavalo. Evitamos nomes usados em outros jogos do gênero (ex.: Vega, Sirius).
+> Versão 0.3 — 2026-11-14. Na v0.3 as garotas perderam o sobrenome (Lira Alazã → Lira). Na v0.2 todas foram renomeadas com nomes de estrelas: Nina → Nashira, Brisa → Mira, Vega → Capela, Tainá → Antares, Cora → Shaula, Estela → Polaris, Íris → Algol. Complementa o [GDD](GDD.md).
+> Cada garota tem só o nome de uma **estrela ou constelação**, sem sobrenome (na v0.3 saíram as pelagens). Evitamos nomes usados em outros jogos do gênero (ex.: Vega, Sirius).
 > Atributos iniciais e efeitos de habilidade são **(inicial)**, ou seja, valores para balancear.
 
 ## Visão geral
 
 | # | Garota | Papel | Estilo (principal / secundário) | Melhor distância | Melhor piso |
 |---|---|---|---|---|---|
-| 1 | **Lira Alazã** | Inicial | Ponteira / — | Milha | Grama |
-| 2 | **Nashira Tordilha** | Inicial | Perseguidora / Arrancadora | Média | Grama |
-| 3 | **Mira Pampa** | Inicial | Fechadora / — | Longa | Grama |
-| 4 | **Capela Rosilha** | Pool | Arrancadora / Perseguidora | Milha | Grama |
-| 5 | **Antares Zaina** | Pool | Ponteira / Perseguidora | Sprint | Grama |
-| 6 | **Shaula Lobuna** | Pool | Fechadora / Arrancadora | Longa | Terra |
-| R1 | **Polaris Moura** | Rival (NPC) | Ponteira | Média | Grama |
-| R2 | **Algol Baia** | Rival (NPC) | Arrancadora | Sprint | Terra |
+| 1 | **Lira** | Inicial | Ponteira / — | Milha | Grama |
+| 2 | **Nashira** | Inicial | Perseguidora / Arrancadora | Média | Grama |
+| 3 | **Mira** | Inicial | Fechadora / — | Longa | Grama |
+| 4 | **Capela** | Pool | Arrancadora / Perseguidora | Milha | Grama |
+| 5 | **Antares** | Pool | Ponteira / Perseguidora | Sprint | Grama |
+| 6 | **Shaula** | Pool | Fechadora / Arrancadora | Longa | Terra |
+| R1 | **Polaris** | Rival (NPC) | Ponteira | Média | Grama |
+| R2 | **Algol** | Rival (NPC) | Arrancadora | Sprint | Terra |
 
 **Cobertura do circuito** (cada copa precisa de uma garota "Ótima" ou "Boa" diferente):
 
@@ -35,7 +35,7 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 
 ## Iniciais
 
-### 1. Lira Alazã — "a chama da largada"
+### 1. Lira — "a chama da largada"
 
 **Personalidade:** competitiva, barulhenta, otimista. Odeia perder e odeia ainda mais esperar. Chama todo mundo pra apostar corrida até o refeitório.
 
@@ -54,13 +54,13 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 **Eventos únicos**
 1. *Corrida até o refeitório*: aceitar o desafio (+Vel, −energia) ou recusar (+humor).
 2. *Primeira derrota*: consolar (+humor, +afinidade com quem estiver junto) ou deixar treinar sozinha (+Det).
-3. *Rival declarada*: encontro com Polaris Moura, que abre a rivalidade das duas.
+3. *Rival declarada*: encontro com Polaris, que abre a rivalidade das duas.
 
 **Afinidades especiais:** amizade natural com **Antares** (as duas são ponteiras e se pegam no treino). Atrito com **Shaula**, porque se acham opostas.
 
 ---
 
-### 2. Nashira Tordilha — "a estrategista"
+### 2. Nashira — "a estrategista"
 
 **Personalidade:** calma, observadora, anda sempre com um caderno de anotações sobre as outras corredoras. Parece fria, mas lembra o aniversário de todo mundo.
 
@@ -87,7 +87,7 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 
 ---
 
-### 3. Mira Pampa — "a última a sair, a primeira a chegar"
+### 3. Mira — "a última a sair, a primeira a chegar"
 
 **Personalidade:** tímida, sonhadora, distraída. Gosta de olhar as nuvens e se perde no caminho do treino. Quando a corrida aperta, vira outra pessoa.
 
@@ -114,7 +114,7 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 
 ## Pool
 
-### 4. Capela Rosilha — "a estrela do palco"
+### 4. Capela — "a estrela do palco"
 
 **Personalidade:** carismática, vaidosa, sonha em ser ídolo além de corredora. Treina pouco quando não tem plateia, e muito quando tem.
 
@@ -139,7 +139,7 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 
 ---
 
-### 5. Antares Zaina — "a pancada"
+### 5. Antares — "a pancada"
 
 **Personalidade:** direta, durona, esportista. Fala pouco, treina muito, ri alto quando ganha. Acorda antes de todo mundo pra correr.
 
@@ -160,11 +160,11 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 2. *Lanche proibido*: dividir o lanche (+humor de ambas) ou entregar à treinadora (+Det, −humor dela).
 3. *Distância demais*: ela tenta uma Média e passa mal. Apoiar dá +Est e libera uma habilidade genérica de fôlego.
 
-**Afinidades especiais:** parceira de treino de **Lira**. Rivalidade com **Algol Baia** na Terra.
+**Afinidades especiais:** parceira de treino de **Lira**. Rivalidade com **Algol** na Terra.
 
 ---
 
-### 6. Shaula Lobuna — "a sombra"
+### 6. Shaula — "a sombra"
 
 **Personalidade:** sombria, sarcástica, teimosa. Diz que não liga pra nada, mas é a última a sair da pista toda noite. Tem um passado de corridas de terra em uma cidade pequena.
 
@@ -195,7 +195,7 @@ As 6 garotas cobrem as 5 copas e o Campeonato Final (5 garotas diferentes) sem s
 
 Não entram no elenco do jogador no MVP. Elas aparecem nas corridas grandes e têm encontros próprios.
 
-### R1. Polaris Moura — "a campeã"
+### R1. Polaris — "a campeã"
 
 **Personalidade:** elegante, educada e implacável. Campeã do ano anterior. Nunca provoca ninguém, porque nem precisa.
 
@@ -205,7 +205,7 @@ Não entram no elenco do jogador no MVP. Elas aparecem nas corridas grandes e t�
 
 **Habilidade — Coroa:** na Largada, se ela estiver em 1º, as adversárias logo atrás gastam um pouco mais de fôlego.
 
-### R2. Algol Baia — "a provocadora"
+### R2. Algol — "a provocadora"
 
 **Personalidade:** debochada, rápida, adora irritar as novatas. Vem do circuito de terra.
 
@@ -237,51 +237,51 @@ Para o equilíbrio, existem **6 especialistas para cada combinação de distânc
 
 | Garota | Casa | Estilo | Vel | Est | Pod | Det | Int | Sprint | Milha | Média | Longa | Grama | Terra |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Altair Castanha | Sprint Grama | Ponteira | 110 | 73 | 104 | 90 | 83 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
-| Spica Gateada | Sprint Grama | Perseguidora | 108 | 77 | 104 | 94 | 77 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
-| Adara Ruana | Sprint Grama | Arrancadora | 108 | 73 | 105 | 88 | 85 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
-| Alcione Oveira | Sprint Grama | Fechadora | 111 | 77 | 104 | 90 | 78 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
-| Electra Melada | Sprint Grama | Ponteira | 115 | 71 | 111 | 86 | 78 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
-| Maia Tobiana | Sprint Grama | Arrancadora | 108 | 71 | 106 | 93 | 82 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
-| **Lira Alazã** | Milha Grama | Ponteira | 110 | 95 | 90 | 80 | 70 | Boa | Ótima | Boa | Ruim | Ótima | Ok |
-| **Capela Rosilha** | Milha Grama | Arrancadora | 101 | 84 | 96 | 90 | 79 | Boa | Ótima | Ok | Ruim | Ótima | Ruim |
-| Cassiopeia Sebruna | Milha Grama | Perseguidora | 105 | 84 | 92 | 97 | 82 | Boa | Ótima | Boa | Ok | Ótima | Ok |
-| Carina Colorada | Milha Grama | Fechadora | 107 | 82 | 98 | 91 | 82 | Boa | Ótima | Boa | Ok | Ótima | Ok |
-| Vela Malacara | Milha Grama | Perseguidora | 106 | 82 | 97 | 93 | 82 | Boa | Ótima | Boa | Ok | Ótima | Ok |
-| Auriga Pangaré | Milha Grama | Arrancadora | 101 | 82 | 96 | 92 | 89 | Boa | Ótima | Boa | Ok | Ótima | Ok |
-| **Nashira Tordilha** | Média Grama | Perseguidora | 105 | 95 | 85 | 85 | 100 | Ok | Boa | Ótima | Boa | Ótima | Ok |
-| Alya Tobiana | Média Grama | Ponteira | 95 | 93 | 85 | 96 | 91 | Ok | Boa | Ótima | Boa | Ótima | Ok |
-| Alhena Douradilha | Média Grama | Arrancadora | 87 | 97 | 90 | 96 | 90 | Ok | Boa | Ótima | Boa | Ótima | Ok |
-| Mizar Picaça | Média Grama | Fechadora | 97 | 95 | 87 | 100 | 81 | Ok | Boa | Ótima | Boa | Ótima | Ok |
-| Alcor Preta | Média Grama | Perseguidora | 95 | 94 | 84 | 102 | 84 | Ok | Boa | Ótima | Boa | Ótima | Ok |
-| Dubhe Branca | Média Grama | Fechadora | 99 | 93 | 84 | 99 | 85 | Ok | Boa | Ótima | Boa | Ótima | Ok |
-| **Mira Pampa** | Longa Grama | Fechadora | 85 | 110 | 100 | 100 | 65 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
-| Almach Castanha | Longa Grama | Ponteira | 86 | 108 | 78 | 89 | 99 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
-| Nunki Gateada | Longa Grama | Perseguidora | 85 | 106 | 79 | 96 | 94 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
-| Ankaa Ruana | Longa Grama | Arrancadora | 80 | 108 | 77 | 94 | 100 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
-| Zosma Oveira | Longa Grama | Fechadora | 87 | 112 | 78 | 93 | 90 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
-| Elnath Melada | Longa Grama | Ponteira | 87 | 112 | 80 | 89 | 92 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
-| **Antares Zaina** | Sprint Terra | Ponteira | 107 | 78 | 106 | 86 | 73 | Ótima | Boa | Ruim | Ruim | Boa | Ótima |
-| Mérope Douradilha | Sprint Terra | Perseguidora | 107 | 71 | 103 | 100 | 79 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
-| Celeno Picaça | Sprint Terra | Arrancadora | 108 | 75 | 104 | 92 | 81 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
-| Bellatrix Preta | Sprint Terra | Fechadora | 113 | 69 | 105 | 91 | 81 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
-| Mintaka Branca | Sprint Terra | Ponteira | 110 | 73 | 109 | 87 | 81 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
-| Andrômeda Tostada | Sprint Terra | Arrancadora | 103 | 76 | 105 | 91 | 84 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
-| Columba Bragada | Milha Terra | Ponteira | 104 | 85 | 94 | 90 | 87 | Boa | Ótima | Boa | Ok | Ok | Ótima |
-| Fênix Castanha | Milha Terra | Perseguidora | 100 | 85 | 96 | 92 | 86 | Boa | Ótima | Boa | Ok | Ok | Ótima |
-| Hidra Gateada | Milha Terra | Arrancadora | 104 | 83 | 97 | 91 | 85 | Boa | Ótima | Boa | Ok | Ok | Ótima |
-| Tucana Ruana | Milha Terra | Fechadora | 104 | 86 | 100 | 90 | 80 | Boa | Ótima | Boa | Ok | Ok | Ótima |
-| Corona Oveira | Milha Terra | Perseguidora | 108 | 80 | 94 | 95 | 82 | Boa | Ótima | Boa | Ok | Ok | Ótima |
-| Zaniah Melada | Milha Terra | Arrancadora | 99 | 85 | 95 | 95 | 86 | Boa | Ótima | Boa | Ok | Ok | Ótima |
-| Deneb Tostada | Média Terra | Ponteira | 98 | 94 | 84 | 94 | 90 | Ok | Boa | Ótima | Boa | Ok | Ótima |
-| Albireo Sebruna | Média Terra | Perseguidora | 92 | 97 | 91 | 99 | 82 | Ok | Boa | Ótima | Boa | Ok | Ótima |
-| Achernar Colorada | Média Terra | Arrancadora | 92 | 97 | 87 | 96 | 88 | Ok | Boa | Ótima | Boa | Ok | Ótima |
-| Mimosa Malacara | Média Terra | Fechadora | 97 | 93 | 86 | 98 | 86 | Ok | Boa | Ótima | Boa | Ok | Ótima |
-| Hamal Pangaré | Média Terra | Perseguidora | 91 | 99 | 88 | 102 | 80 | Ok | Boa | Ótima | Boa | Ok | Ótima |
-| Mirach Bragada | Média Terra | Fechadora | 98 | 95 | 89 | 97 | 82 | Ok | Boa | Ótima | Boa | Ok | Ótima |
-| **Shaula Lobuna** | Longa Terra | Fechadora | 90 | 105 | 95 | 110 | 75 | Ruim | Ok | Boa | Ótima | Boa | Ótima |
-| Saiph Tobiana | Longa Terra | Ponteira | 89 | 113 | 80 | 84 | 94 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
-| Naos Douradilha | Longa Terra | Perseguidora | 85 | 109 | 78 | 93 | 96 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
-| Avior Picaça | Longa Terra | Arrancadora | 82 | 109 | 78 | 95 | 96 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
-| Atria Preta | Longa Terra | Fechadora | 91 | 110 | 76 | 92 | 91 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
-| Alnair Branca | Longa Terra | Ponteira | 85 | 106 | 81 | 89 | 99 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
+| Altair | Sprint Grama | Ponteira | 110 | 73 | 104 | 90 | 83 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
+| Spica | Sprint Grama | Perseguidora | 108 | 77 | 104 | 94 | 77 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
+| Adara | Sprint Grama | Arrancadora | 108 | 73 | 105 | 88 | 85 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
+| Alcione | Sprint Grama | Fechadora | 111 | 77 | 104 | 90 | 78 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
+| Electra | Sprint Grama | Ponteira | 115 | 71 | 111 | 86 | 78 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
+| Maia | Sprint Grama | Arrancadora | 108 | 71 | 106 | 93 | 82 | Ótima | Boa | Ok | Ruim | Ótima | Ok |
+| **Lira** | Milha Grama | Ponteira | 110 | 95 | 90 | 80 | 70 | Boa | Ótima | Boa | Ruim | Ótima | Ok |
+| **Capela** | Milha Grama | Arrancadora | 101 | 84 | 96 | 90 | 79 | Boa | Ótima | Ok | Ruim | Ótima | Ruim |
+| Cassiopeia | Milha Grama | Perseguidora | 105 | 84 | 92 | 97 | 82 | Boa | Ótima | Boa | Ok | Ótima | Ok |
+| Carina | Milha Grama | Fechadora | 107 | 82 | 98 | 91 | 82 | Boa | Ótima | Boa | Ok | Ótima | Ok |
+| Vela | Milha Grama | Perseguidora | 106 | 82 | 97 | 93 | 82 | Boa | Ótima | Boa | Ok | Ótima | Ok |
+| Auriga | Milha Grama | Arrancadora | 101 | 82 | 96 | 92 | 89 | Boa | Ótima | Boa | Ok | Ótima | Ok |
+| **Nashira** | Média Grama | Perseguidora | 105 | 95 | 85 | 85 | 100 | Ok | Boa | Ótima | Boa | Ótima | Ok |
+| Alya | Média Grama | Ponteira | 95 | 93 | 85 | 96 | 91 | Ok | Boa | Ótima | Boa | Ótima | Ok |
+| Alhena | Média Grama | Arrancadora | 87 | 97 | 90 | 96 | 90 | Ok | Boa | Ótima | Boa | Ótima | Ok |
+| Mizar | Média Grama | Fechadora | 97 | 95 | 87 | 100 | 81 | Ok | Boa | Ótima | Boa | Ótima | Ok |
+| Alcor | Média Grama | Perseguidora | 95 | 94 | 84 | 102 | 84 | Ok | Boa | Ótima | Boa | Ótima | Ok |
+| Dubhe | Média Grama | Fechadora | 99 | 93 | 84 | 99 | 85 | Ok | Boa | Ótima | Boa | Ótima | Ok |
+| **Mira** | Longa Grama | Fechadora | 85 | 110 | 100 | 100 | 65 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
+| Almach | Longa Grama | Ponteira | 86 | 108 | 78 | 89 | 99 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
+| Nunki | Longa Grama | Perseguidora | 85 | 106 | 79 | 96 | 94 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
+| Ankaa | Longa Grama | Arrancadora | 80 | 108 | 77 | 94 | 100 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
+| Zosma | Longa Grama | Fechadora | 87 | 112 | 78 | 93 | 90 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
+| Elnath | Longa Grama | Ponteira | 87 | 112 | 80 | 89 | 92 | Ruim | Ok | Boa | Ótima | Ótima | Ok |
+| **Antares** | Sprint Terra | Ponteira | 107 | 78 | 106 | 86 | 73 | Ótima | Boa | Ruim | Ruim | Boa | Ótima |
+| Mérope | Sprint Terra | Perseguidora | 107 | 71 | 103 | 100 | 79 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
+| Celeno | Sprint Terra | Arrancadora | 108 | 75 | 104 | 92 | 81 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
+| Bellatrix | Sprint Terra | Fechadora | 113 | 69 | 105 | 91 | 81 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
+| Mintaka | Sprint Terra | Ponteira | 110 | 73 | 109 | 87 | 81 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
+| Andrômeda | Sprint Terra | Arrancadora | 103 | 76 | 105 | 91 | 84 | Ótima | Boa | Ok | Ruim | Ok | Ótima |
+| Columba | Milha Terra | Ponteira | 104 | 85 | 94 | 90 | 87 | Boa | Ótima | Boa | Ok | Ok | Ótima |
+| Fênix | Milha Terra | Perseguidora | 100 | 85 | 96 | 92 | 86 | Boa | Ótima | Boa | Ok | Ok | Ótima |
+| Hidra | Milha Terra | Arrancadora | 104 | 83 | 97 | 91 | 85 | Boa | Ótima | Boa | Ok | Ok | Ótima |
+| Tucana | Milha Terra | Fechadora | 104 | 86 | 100 | 90 | 80 | Boa | Ótima | Boa | Ok | Ok | Ótima |
+| Corona | Milha Terra | Perseguidora | 108 | 80 | 94 | 95 | 82 | Boa | Ótima | Boa | Ok | Ok | Ótima |
+| Zaniah | Milha Terra | Arrancadora | 99 | 85 | 95 | 95 | 86 | Boa | Ótima | Boa | Ok | Ok | Ótima |
+| Deneb | Média Terra | Ponteira | 98 | 94 | 84 | 94 | 90 | Ok | Boa | Ótima | Boa | Ok | Ótima |
+| Albireo | Média Terra | Perseguidora | 92 | 97 | 91 | 99 | 82 | Ok | Boa | Ótima | Boa | Ok | Ótima |
+| Achernar | Média Terra | Arrancadora | 92 | 97 | 87 | 96 | 88 | Ok | Boa | Ótima | Boa | Ok | Ótima |
+| Mimosa | Média Terra | Fechadora | 97 | 93 | 86 | 98 | 86 | Ok | Boa | Ótima | Boa | Ok | Ótima |
+| Hamal | Média Terra | Perseguidora | 91 | 99 | 88 | 102 | 80 | Ok | Boa | Ótima | Boa | Ok | Ótima |
+| Mirach | Média Terra | Fechadora | 98 | 95 | 89 | 97 | 82 | Ok | Boa | Ótima | Boa | Ok | Ótima |
+| **Shaula** | Longa Terra | Fechadora | 90 | 105 | 95 | 110 | 75 | Ruim | Ok | Boa | Ótima | Boa | Ótima |
+| Saiph | Longa Terra | Ponteira | 89 | 113 | 80 | 84 | 94 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
+| Naos | Longa Terra | Perseguidora | 85 | 109 | 78 | 93 | 96 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
+| Avior | Longa Terra | Arrancadora | 82 | 109 | 78 | 95 | 96 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
+| Atria | Longa Terra | Fechadora | 91 | 110 | 76 | 92 | 91 | Ruim | Ok | Boa | Ótima | Ok | Ótima |
+| Alnair | Longa Terra | Ponteira | 85 | 106 | 81 | 89 | 99 | Ruim | Ok | Boa | Ótima | Ok | Ótima |

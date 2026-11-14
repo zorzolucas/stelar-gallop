@@ -41,7 +41,7 @@ Acompanhar, Lateral, Frente, Aérea e Tribuna. Troque com `C` ou com as teclas `
 **Encontros e afinidade:** em algumas semanas (mais ao Sair) aparece um encontro com 2 ou 3
 escolhas. Há 3 eventos únicos por inicial e 6 genéricos com as colegas da academia, todos em
 `data/encontros.json`. Os encontros mexem na afinidade, e colegas com afinidade 30+ podem
-aparecer num treino para um bônus de dupla (+25%). A rival Polaris Moura corre o Grande Prêmio.
+aparecer num treino para um bônus de dupla (+25%). A rival Polaris corre o Grande Prêmio.
 
 **Save:** a carreira é salva sozinha a cada turno (`user://carreira.json`). Na tela inicial
 aparece o botão para continuar.

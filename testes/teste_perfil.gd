@@ -21,7 +21,7 @@ func _initialize() -> void:
 	if dados.iniciais.is_empty():
 		dados._ready()
 
-	var p = PerfilS.novo("Lira Alazã")
+	var p = PerfilS.novo("Lira")
 	_checar(p.moeda == 300, "moeda inicial")
 	_checar(p.pool.size() == 5, "pool com 5")
 	var mvp: int = p.pool.filter(func(n): return dados.garota(n).get("mvp", false)).size()
@@ -52,7 +52,7 @@ func _initialize() -> void:
 		and q.escolhida == p.escolhida and q.tiragens == p.tiragens, "save/load do perfil")
 
 	# fim de carreira: moeda, versão salva e giro da pool
-	var c = CarreiraS.new(dados.garota("Lira Alazã"), dados.config_carreira("Lira Alazã"), 7, 2)
+	var c = CarreiraS.new(dados.garota("Lira"), dados.config_carreira("Lira"), 7, 2)
 	_checar(c.limite == 1080.0, "limite com vínculo 2")
 	_checar(c.attrs.vel == 110.0 + 16.0, "atributos iniciais com vínculo 2")
 	c.resultados.append({"turno": 12, "nome": "x", "posicao": 2, "objetivo": 5, "ok": true})
@@ -61,11 +61,11 @@ func _initialize() -> void:
 	var pool_antes: Array = q.pool.duplicate()
 	q.concluir_carreira(c, true)
 	_checar(q.moeda == antes + 30 + 80 + 50, "moeda do fim de carreira")
-	_checar(q.elenco["Lira Alazã"].salva.nota != "", "versão salva guardada")
+	_checar(q.elenco["Lira"].salva.nota != "", "versão salva guardada")
 	_checar(q.giro == 1 and q.pool != pool_antes, "pool girou")
 
 	# garota só-dados também tem configuração de carreira
-	var cfg: Dictionary = dados.config_carreira("Altair Castanha")
+	var cfg: Dictionary = dados.config_carreira("Altair")
 	_checar(cfg.distancia == "sprint" and cfg.piso == "grama" and cfg.naturais.size() == 2, "config de garota só-dados")
 
 	PerfilS.apagar()

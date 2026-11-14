@@ -65,8 +65,8 @@ No turno do Grande Prêmio acontecem **8 corridas ao mesmo tempo**, uma por casa
 
 | Casa | Rival do Grande Prêmio |
 |---|---|
-| Média Grama, Longa Grama | **Polaris Moura** |
-| Sprint Terra, Milha Terra | **Algol Baia** |
+| Média Grama, Longa Grama | **Polaris** |
+| Sprint Terra, Milha Terra | **Algol** |
 | Outras | Uma NPC "campeã da casa" gerada (sem encontros no MVP) |
 
 Distâncias do Grande Prêmio (inicial): Sprint 1200 m · Milha 1600 m · Média 2400 m · Longa 3200 m.
@@ -101,7 +101,7 @@ Os objetivos 1, 3 e 5 são sempre os mesmos (Estreia e os dois Grandes Prêmios)
 
 Regras:
 - O sorteio pesa 2 para cada candidato Normal e 1 para cada Difícil.
-- "Outro piso" não sai para garotas com o outro piso Ruim (ex.: Capela Rosilha), porque o multiplicador ×0,90 deixa o objetivo injusto.
+- "Outro piso" não sai para garotas com o outro piso Ruim (ex.: Capela), porque o multiplicador ×0,90 deixa o objetivo injusto.
 - Na Magnitude 3 ou mais (§10), só saem candidatos Difíceis.
 
 ## 4. Mapa de rotas

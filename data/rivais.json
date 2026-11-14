@@ -1,6 +1,6 @@
 [
   {
-    "nome": "Polaris Moura",
+    "nome": "Polaris",
     "estilo": "pon",
     "atributos": {
       "vel": 112,
@@ -21,7 +21,7 @@
     "_doc": "Rival R1 (elenco.md). Corre o Grande Prêmio nas casas Média e Longa Grama (calendario.md §3.1). A habilidade Coroa ainda não existe; usa a Chama da Largada."
   },
   {
-    "nome": "Algol Baia",
+    "nome": "Algol",
     "estilo": "arr",
     "atributos": {
       "vel": 110,

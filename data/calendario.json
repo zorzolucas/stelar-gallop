@@ -357,10 +357,10 @@
     "Grande Prêmio da Constelação"
   ],
   "rivais_gp": {
-    "media_grama": "Polaris Moura",
-    "longa_grama": "Polaris Moura",
-    "sprint_terra": "Algol Baia",
-    "milha_terra": "Algol Baia"
+    "media_grama": "Polaris",
+    "longa_grama": "Polaris",
+    "sprint_terra": "Algol",
+    "milha_terra": "Algol"
   },
   "misterios": [
     {

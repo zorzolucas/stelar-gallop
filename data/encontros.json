@@ -1,15 +1,15 @@
 {
   "_doc": "Encontros da carreira (GDD §4.7). 'garota': null = genérico (sorteia uma colega como {outra}); um nome = evento único dessa garota. 'quando': condições para aparecer. Efeitos: humor, energia, vel/est/pod/det/int, afinidade (com {outra}), nivel_treino (sobe 1 nível do treino mais usado), perde_turno. Uma escolha com 'chance' usa 'efeitos' se der certo e 'efeitos_falha' se não. Textos: {nome} = primeiro nome da garota treinada, {outra} = primeiro nome da colega.",
-  "colegas": ["Lira Alazã", "Nashira Tordilha", "Mira Pampa", "Capela Rosilha", "Antares Zaina", "Shaula Lobuna"],
+  "colegas": ["Lira", "Nashira", "Mira", "Capela", "Antares", "Shaula"],
   "afinidade_inicial": {
-    "Lira Alazã": {"Antares Zaina": 20, "Shaula Lobuna": -10},
-    "Nashira Tordilha": {"Capela Rosilha": 20, "Mira Pampa": 20},
-    "Mira Pampa": {"Nashira Tordilha": 20, "Shaula Lobuna": 20}
+    "Lira": {"Antares": 20, "Shaula": -10},
+    "Nashira": {"Capela": 20, "Mira": 20},
+    "Mira": {"Nashira": 20, "Shaula": 20}
   },
   "encontros": [
     {
       "id": "lira_refeitorio",
-      "garota": "Lira Alazã",
+      "garota": "Lira",
       "titulo": "Corrida até o refeitório",
       "texto": "— Quem chegar por último paga o almoço! — grita {nome}, já correndo antes de terminar a frase.",
       "quando": {"turno_min": 2},
@@ -20,7 +20,7 @@
     },
     {
       "id": "lira_derrota",
-      "garota": "Lira Alazã",
+      "garota": "Lira",
       "titulo": "Primeira derrota",
       "texto": "{nome} está sentada sozinha na arquibancada vazia, olhando para a pista. Ela não está acostumada a ver as costas das outras.",
       "quando": {"apos_derrota": true},
@@ -31,9 +31,9 @@
     },
     {
       "id": "lira_rival",
-      "garota": "Lira Alazã",
+      "garota": "Lira",
       "titulo": "Rival declarada",
-      "texto": "Polaris Moura, a campeã do ano passado, passa por {nome} no corredor e para. — Você é a que larga na frente, não é? Vamos ver até onde aguenta.",
+      "texto": "Polaris, a campeã do ano passado, passa por {nome} no corredor e para. — Você é a que larga na frente, não é? Vamos ver até onde aguenta.",
       "quando": {"turno_min": 14},
       "escolhas": [
         {"texto": "\"Até a linha de chegada.\"", "efeitos": {"det": 20, "humor": 1}, "resultado": "Polaris sorri de leve e vai embora. {nome} passa o resto do dia elétrica."},
@@ -42,7 +42,7 @@
     },
     {
       "id": "nashira_caderno",
-      "garota": "Nashira Tordilha",
+      "garota": "Nashira",
       "titulo": "O caderno perdido",
       "texto": "Você encontra o caderno de anotações de {nome} esquecido no vestiário. Ele está aberto numa página cheia de setas e nomes.",
       "quando": {"turno_min": 2},
@@ -53,7 +53,7 @@
     },
     {
       "id": "nashira_plano",
-      "garota": "Nashira Tordilha",
+      "garota": "Nashira",
       "titulo": "Plano perfeito",
       "texto": "{nome} aparece com uma tabela de treinos para as próximas semanas, cada uma com um objetivo diferente.",
       "quando": {"turno_min": 4},
@@ -64,7 +64,7 @@
     },
     {
       "id": "nashira_falha",
-      "garota": "Nashira Tordilha",
+      "garota": "Nashira",
       "titulo": "Quando o plano falha",
       "texto": "Depois da corrida, {nome} folheia o caderno sem parar. — Eu tinha previsto tudo. O que deu errado?",
       "quando": {"apos_derrota": true},
@@ -75,7 +75,7 @@
     },
     {
       "id": "mira_perdida",
-      "garota": "Mira Pampa",
+      "garota": "Mira",
       "titulo": "Perdida no caminho",
       "texto": "O treino começa e nada de {nome}. Uma mensagem chega: \"acho que entrei no prédio errado... tem muitas plantas aqui\".",
       "quando": {"turno_min": 2},
@@ -86,7 +86,7 @@
     },
     {
       "id": "mira_nuvem",
-      "garota": "Mira Pampa",
+      "garota": "Mira",
       "titulo": "Nuvem em forma de cavalo",
       "texto": "No meio do aquecimento, {nome} para e aponta para o céu. — Olha, aquela nuvem está galopando!",
       "quando": {"turno_min": 3},
@@ -97,7 +97,7 @@
     },
     {
       "id": "mira_virada",
-      "garota": "Mira Pampa",
+      "garota": "Mira",
       "titulo": "A outra Mira",
       "texto": "Depois da vitória, {nome} fala baixinho: — Sabe... eu gosto de correr lá atrás. Dá para ver todo mundo. E quando eu passo, ninguém espera.",
       "quando": {"apos_vitoria": true},

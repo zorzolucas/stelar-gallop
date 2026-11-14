@@ -824,6 +824,20 @@ static func carregar() -> Carreira:
 		return null
 	# autoloads não podem ser usados direto numa função estática
 	var dados: Node = (Engine.get_main_loop() as SceneTree).root.get_node("Dados")
+	# saves antigos usavam nome e sobrenome ("Lira Alazã"); hoje é só o nome
+	d.nome = d.nome.split(" ")[0]
+	if d.has("afinidade"):
+		var af := {}
+		for k in d.afinidade:
+			af[k.split(" ")[0]] = d.afinidade[k]
+		d.afinidade = af
+	if d.has("duplas"):
+		for t in d.duplas:
+			d.duplas[t] = d.duplas[t].split(" ")[0]
+	if d.get("encontro_pendente", {}).has("outra"):
+		d.encontro_pendente.outra = d.encontro_pendente.outra.split(" ")[0]
+	if d.get("encontro_pendente", {}).has("rival"):
+		d.encontro_pendente.rival = d.encontro_pendente.rival.split(" ")[0]
 	var g: Dictionary = dados.garota(d.nome)
 	var ini: Dictionary = dados.config_carreira(d.nome)
 	if g.is_empty() or ini.is_empty():
