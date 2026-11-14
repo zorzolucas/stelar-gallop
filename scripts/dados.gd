@@ -13,6 +13,7 @@ var garotas: Array = []
 var iniciais: Array = []
 var rivais: Array = []
 var encontros: Dictionary = {}
+var calendario: Dictionary = {}
 
 
 func _ready() -> void:
@@ -20,6 +21,7 @@ func _ready() -> void:
 	iniciais = _ler_json("res://data/iniciais.json")
 	rivais = _ler_json("res://data/rivais.json")
 	encontros = _ler_json("res://data/encontros.json")
+	calendario = _ler_json("res://data/calendario.json")
 
 
 func _ler_json(caminho: String) -> Variant:

@@ -1,0 +1,128 @@
+{
+  "_doc": "Dados do calendário da carreira (docs/calendario.md). Todos os números são (inicial).",
+  "meses": ["Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro", "Janeiro", "Fevereiro"],
+  "estacoes": ["outono", "outono", "outono", "inverno", "inverno", "inverno", "primavera", "primavera", "primavera", "verao", "verao", "verao"],
+  "categorias": {
+    "estreia": {"nome": "Estreia", "forca": 135, "fama_entrada": 0, "fama": 100, "desde": 4},
+    "aberta": {"nome": "Aberta", "forca": 235, "fama_entrada": 0, "fama": 200, "desde": 5},
+    "prata": {"nome": "Prata", "forca": 370, "fama_entrada": 600, "fama": 400, "desde": 13},
+    "ouro": {"nome": "Ouro", "forca": 500, "fama_entrada": 1500, "fama": 800, "desde": 25},
+    "gp1": {"nome": "Grande Prêmio", "forca": 400, "fama_entrada": 0, "fama": 1500, "desde": 24},
+    "gp2": {"nome": "Grande Prêmio", "forca": 640, "fama_entrada": 0, "fama": 1500, "desde": 48}
+  },
+  "fama_por_posicao": [1.0, 0.5, 0.3, 0.15, 0.15],
+  "fama_resto": 0.05,
+  "variacao_npc": 0.1,
+  "forca_rival": 1.15,
+  "forca_desafio": 1.2,
+  "distancia_gp": {"sprint": 1200, "milha": 1600, "media": 2400, "longa": 3200},
+  "trechos": [
+    {"turnos": [5, 10], "nos": 3, "vespera": 11, "objetivo": 12},
+    {"turnos": [13, 20], "nos": 4, "ferias": [21, 22], "vespera": 23, "objetivo": 24},
+    {"turnos": [25, 34], "nos": 5, "vespera": 35, "objetivo": 36},
+    {"turnos": [37, 44], "nos": 4, "ferias": [45, 46], "vespera": 47, "objetivo": 48}
+  ],
+  "nos": {
+    "foco": {"nome": "Treino focado", "peso": 3, "icone": "▲", "descricao": "O treino de %s conta 1 nível acima."},
+    "circuito": {"nome": "Circuito", "peso": 1, "icone": "◆", "descricao": "Cada turno oferece 2 corridas opcionais."},
+    "festival": {"nome": "Festival", "peso": 2, "icone": "✿", "descricao": "Sair sempre gera encontro e a afinidade sobe em dobro. Treinos rendem −10%."},
+    "recuperacao": {"nome": "Recuperação", "peso": 2, "icone": "♥", "descricao": "Descanso rende +50%, a Enfermaria não gasta o turno e a falha não derruba o humor."},
+    "biblioteca": {"nome": "Biblioteca", "peso": 1, "icone": "✎", "descricao": "O treino de Inteligência conta 1 nível acima."},
+    "desafio": {"nome": "Desafio", "peso": 1, "icone": "⚔", "descricao": "No 2º turno, corrida opcional contra uma NPC de elite. Top 3 dá um prêmio; fora do top 3 o humor cai."},
+    "misterio": {"nome": "Mistério", "peso": 1, "icone": "?", "descricao": "No 1º turno acontece um evento especial de risco e recompensa."}
+  },
+  "climas": {
+    "bom": {"nome": "Tempo bom", "icone": "☀"},
+    "chuva": {"nome": "Chuva", "icone": "☂", "descricao": "Treino de Velocidade −10%, Poder conta 1 nível acima. Na corrida: aceleração −15% e mais bloqueios."},
+    "calor": {"nome": "Calor", "icone": "♨", "descricao": "Todo treino gasta +5 de energia. Na corrida: fôlego −2%."},
+    "frio": {"nome": "Frio", "icone": "❄", "descricao": "Descanso recupera −10%. Determinação conta 1 nível acima."},
+    "vento": {"nome": "Vento", "icone": "≈", "descricao": "Treino de Inteligência rende +10%."},
+    "estrelas": {"nome": "Noite de estrelas", "icone": "★", "descricao": "Encontros dão +50% de afinidade e o humor sobe no início do mês."}
+  },
+  "chance_clima": {
+    "outono": {"bom": 50, "chuva": 20, "calor": 5, "frio": 10, "vento": 15},
+    "inverno": {"bom": 45, "chuva": 10, "frio": 30, "vento": 10, "estrelas": 5},
+    "primavera": {"bom": 50, "chuva": 25, "calor": 10, "vento": 10, "estrelas": 5},
+    "verao": {"bom": 40, "chuva": 30, "calor": 25, "estrelas": 5}
+  },
+  "objetivos_2": [
+    {"id": "padrao", "texto": "Top 3 numa Aberta na casa", "cat": "aberta", "onde": "casa", "meta": 3, "peso": 2},
+    {"id": "fora", "texto": "Top 3 numa Aberta na distância vizinha", "cat": "aberta", "onde": "vizinha", "meta": 3, "peso": 2},
+    {"id": "piso", "texto": "Top 5 numa Aberta na casa, no outro piso", "cat": "aberta", "onde": "outro_piso", "meta": 5, "peso": 2},
+    {"id": "maratona", "texto": "Duas corridas com top 5 entre as semanas 5 e 12 (a Aberta da semana 12 conta)", "cat": "aberta", "onde": "casa", "meta": 5, "maratona": 2, "peso": 2},
+    {"id": "vitoria", "texto": "Vencer uma Aberta na casa", "cat": "aberta", "onde": "casa", "meta": 1, "peso": 1, "dificil": true}
+  ],
+  "objetivos_4": [
+    {"id": "padrao", "texto": "Top 3 numa Ouro na casa", "cat": "ouro", "onde": "casa", "meta": 3, "peso": 2},
+    {"id": "fora", "texto": "Top 5 numa Ouro na distância vizinha", "cat": "ouro", "onde": "vizinha", "meta": 5, "peso": 2},
+    {"id": "prata", "texto": "Vencer uma Prata na casa", "cat": "prata", "onde": "casa", "meta": 1, "peso": 2},
+    {"id": "piso", "texto": "Top 3 numa Ouro na casa, no outro piso", "cat": "ouro", "onde": "outro_piso", "meta": 3, "peso": 1, "dificil": true}
+  ],
+  "fama_objetivo_4": 1500,
+  "nomes_corrida": {
+    "aberta": ["Copa das Acácias", "Taça do Riacho", "Prova da Aurora", "Copa dos Ipês", "Taça da Colina", "Prova do Orvalho", "Copa da Brisa", "Taça das Lanternas"],
+    "prata": ["Taça Prata da Lua", "Copa do Cometa", "Prêmio das Marés", "Taça do Farol", "Copa do Eclipse", "Prêmio da Nebulosa"],
+    "ouro": ["Coroa de Ouro do Zênite", "Prêmio Áureo da Via Láctea", "Taça Ouro do Solstício", "Grande Copa de Órion", "Coroa da Supernova"],
+    "desafio": ["Desafio da Elite", "Duelo das Campeãs", "Prova das Estrelas Fixas"]
+  },
+  "nome_estreia": "Estreia na Academia",
+  "nome_gp": ["Grande Prêmio Estelar", "Grande Prêmio da Constelação"],
+  "rivais_gp": {"media_grama": "Polaris Moura", "longa_grama": "Polaris Moura", "sprint_terra": "Algol Baia", "milha_terra": "Algol Baia"},
+  "misterios": [
+    {
+      "id": "serra", "titulo": "Treino na serra",
+      "texto": "Uma treinadora aposentada convida {nome} para subir a serra correndo. O ar é rarefeito e o caminho, perigoso.",
+      "escolhas": [
+        {"texto": "Aceitar a subida", "efeitos": {"serra": 1}, "resultado": "{nome} volta exausta, mas sentindo as pernas mais fortes. O próximo treino de Estamina ou Determinação conta 1 nível acima, com o dobro de chance de falha."},
+        {"texto": "Recusar com educação", "efeitos": {"humor": 1}, "resultado": "A treinadora ri e conta histórias das corridas antigas."}
+      ]
+    },
+    {
+      "id": "visitante", "titulo": "Treinadora visitante",
+      "texto": "Uma treinadora famosa visita a academia e oferece uma dica para {nome}.",
+      "escolhas": [
+        {"texto": "Pedir uma dica de corrida", "efeitos": {"int": 25}, "resultado": "Uma dica simples sobre onde respirar na curva muda tudo."},
+        {"texto": "Pedir uma dica de treino", "efeitos": {"nivel_treino": 1}, "resultado": "Ela ajusta a postura de {nome} no treino que ela mais repete."}
+      ]
+    },
+    {
+      "id": "aposta", "titulo": "Aposta no refeitório",
+      "texto": "{outra} desafia {nome} para uma corrida-relâmpago até o portão. Quem perder lava a louça.",
+      "escolhas": [
+        {"texto": "Aceitar a aposta", "chance": 0.55, "efeitos": {"humor": 1, "afinidade": 10}, "efeitos_falha": {"humor": -1, "afinidade": 5}, "resultado": "{nome} vence por um passo e {outra} lava a louça rindo.", "resultado_falha": "{outra} chega primeiro. {nome} lava a louça resmungando."},
+        {"texto": "Recusar", "efeitos": {}, "resultado": "{outra} chama {nome} de medrosa o resto da semana."}
+      ]
+    },
+    {
+      "id": "insonia", "titulo": "Noite sem dormir",
+      "texto": "{nome} não consegue dormir pensando na próxima corrida. Às três da manhã alguém bate na porta do quarto.",
+      "escolhas": [
+        {"texto": "Abrir a porta", "efeitos": {"energia": -20, "unico_garantido": 1}, "resultado": "A conversa vai até o sol nascer. Algo vai acontecer em breve. (O próximo encontro é um evento único, se ainda houver.)"},
+        {"texto": "Tentar dormir de novo", "efeitos": {"energia": -5}, "resultado": "{nome} dorme mal, mas dorme."}
+      ]
+    },
+    {
+      "id": "fas", "titulo": "Cartas de fãs",
+      "texto": "Chega uma caixa cheia de cartas para {nome}. Algumas vêm de crianças de outras cidades.",
+      "escolhas": [
+        {"texto": "Responder todas", "efeitos": {"fama": 150, "energia": -10}, "resultado": "A notícia se espalha: a garota que responde as cartas. A fama sobe."},
+        {"texto": "Ler e guardar com carinho", "efeitos": {"humor": 2}, "resultado": "{nome} cola as cartas favoritas na parede do quarto."}
+      ]
+    },
+    {
+      "id": "nada", "titulo": "Nada demais",
+      "texto": "Um dia comum, sem nada especial. {nome} passeia pelo campus no fim da tarde.",
+      "escolhas": [
+        {"texto": "Aproveitar o pôr do sol", "efeitos": {"humor": 1}, "resultado": "Às vezes um dia tranquilo é o que faltava."}
+      ]
+    }
+  ],
+  "vespera": {
+    "titulo": "Véspera",
+    "texto": "{rival} aparece na pista na véspera da prova e observa {nome} em silêncio. — Amanhã, então.",
+    "escolhas": [
+      {"texto": "Encarar de volta", "efeitos": {"det": 20, "humor": 1}, "resultado": "{nome} sustenta o olhar. Amanhã é dia de correr."},
+      {"texto": "Estudar o jeito dela", "efeitos": {"int": 20}, "resultado": "{nome} anota cada detalhe da passada de {rival}."}
+    ]
+  }
+}

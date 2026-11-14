@@ -23,13 +23,14 @@ Toda corrida tem uma **categoria**. Ela define a força das adversárias, o prê
 
 | Categoria | Força das NPCs (média dos atributos, inicial) | Fama para entrar (inicial) | Quando aparece |
 |---|---|---|---|
-| **Estreia** | 150 | — | Só no turno 4 (a primeira corrida dela) |
-| **Aberta** | 250 | 0 | A partir do turno 5 |
-| **Prata** | 400 | 600 | A partir do turno 13 |
-| **Ouro** | 550 | 1500 | A partir do turno 25 |
-| **Grande Prêmio** | Ano 1: 450 · Ano 2: 700 | Por convite (objetivo) | Turnos 24 e 48 |
+| **Estreia** | 135 | — | Só no turno 4 (a primeira corrida dela) |
+| **Aberta** | 235 | 0 | A partir do turno 5 |
+| **Prata** | 370 | 600 | A partir do turno 13 |
+| **Ouro** | 500 | 1500 | A partir do turno 25 |
+| **Grande Prêmio** | Ano 1: 400 · Ano 2: 640 | Por convite (objetivo) | Turnos 24 e 48 |
 
 - A força das NPCs varia ±10% de uma corredora para outra, para o pelotão não ser uniforme.
+- Valores recalibrados no protótipo com o bot de `testes/balanco.gd` (eram 150 / 250 / 400 / 550 / 450 e 700). A fonte da verdade é `data/calendario.json`.
 - No Grande Prêmio, a **rival com nome** da casa corre com +15% sobre a força da categoria.
 
 ### 2.1 Curva esperada da jogadora

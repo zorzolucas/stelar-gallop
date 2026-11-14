@@ -4,6 +4,7 @@ extends SceneTree
 ## Uso (com janela, não headless): Godot --path . --script res://testes/capturas.gd
 
 var main: Node
+var dados: Node
 var passo := 0
 var espera := 0
 var passos: Array[Callable] = []
@@ -19,7 +20,7 @@ func _initialize() -> void:
 	carreira_s.apagar_save()
 	main = load("res://cenas/main.tscn").instantiate()
 	root.add_child(main)
-	var dados: Node = root.get_node("Dados")
+	dados = root.get_node("Dados")
 	passos = [
 		func():
 			_salvar("1_escolha")
@@ -34,29 +35,20 @@ func _initialize() -> void:
 			_salvar("1c_pool")
 			main._comecar_carreira("Lira Alazã")
 			var c = main.carreira
-			for t in ["vel", "vel", "est", "pod", "vel"]:
+			for t in ["vel", "est", "vel"]:
+				c.encontro_pendente = {}
 				c.treinar(t)
 			c.afinidade["Antares Zaina"] = 35
 			c.duplas = {"pod": "Antares Zaina"}
 			for e in dados.encontros.encontros:
 				if e.id == "lira_refeitorio":
-					c._abrir_encontro(e)
-			main.mostrar_carreira("Treino de Velocidade: +41 Vel, +15 Pod."),
+					c._abrir_encontro(e, RandomNumberGenerator.new())
+			main.mostrar_carreira("Treino de Velocidade: +60 Vel, +22 Pod."),
 		func():
 			_salvar("2a_encontro")
 			main.mostrar_carreira(main.carreira.escolher(0)),
 		func():
-			_salvar("2_carreira")
-			var c = main.carreira
-			while c.corrida_do_turno().is_empty():
-				if c.energia < 45:
-					c.descansar()
-				else:
-					c.treinar(["vel", "est", "pod"][c.turno % 3])
-			c.encontro_pendente = {}
-			main.mostrar_carreira(""),
-		func():
-			_salvar("3_antes_da_corrida")
+			_salvar("2_objetivo_estreia")
 			main.mostrar_corrida()
 			main.tela.velocidade = 2.0,
 		func(): pass,
@@ -76,16 +68,62 @@ func _initialize() -> void:
 			_salvar("5_chegada")
 			main.tela._continuar(),
 		func():
-			_salvar("6_depois_da_corrida")
-			# pula direto para o fim da carreira
+			_resolver_encontro()
+			main.mostrar_carreira(""),
+		func():
+			_salvar("6_mapa")
+			var c = main.carreira
+			var cols: Array = c.opcoes_mapa()
+			var escolha: int = cols[0]
+			for col in cols:
+				if c.mapas[c.trecho()][0][col].tipo == "circuito":
+					escolha = col
+			main.mostrar_carreira(c.escolher_no(escolha))
+			_resolver_encontro()
+			main.mostrar_carreira(""),
+		func():
+			_salvar("7_turno_com_rota")
+			_avancar_ate(21)
+			main.mostrar_carreira(""),
+		func():
+			_salvar("8_ferias")
 			main.carreira.terminou = true
 			main.mostrar_carreira("Fim de teste."),
 		func():
-			_salvar("7_fim")
+			_salvar("9_fim")
 			main._concluir(true),
 		func():
-			_salvar("8_academia_depois"),
+			_salvar("10_academia_depois"),
 	]
+
+
+func _resolver_encontro() -> void:
+	var c = main.carreira
+	while not c.encontro_pendente.is_empty():
+		c.escolher(0)
+
+
+## Joga sozinho (sem tela) até o turno pedido, para chegar às férias.
+func _avancar_ate(alvo: int) -> void:
+	var c = main.carreira
+	var guard := 0
+	while c.turno < alvo and not c.terminou and guard < 300:
+		guard += 1
+		match c.pendencia():
+			"encontro": c.escolher(0)
+			"mapa": c.escolher_no(c.opcoes_mapa()[0])
+			"ferias": c.escolher_acampamento("praia")
+			"corrida", "objetivo":
+				var d = c.montar_corrida(dados.garotas)
+				var sim := SimCorrida.new(d.field, d.distancia, d.seed, d.clima)
+				var pos: int = sim.rodar_ate_o_fim().find(0) + 1
+				c.registrar_corrida(maxi(1, pos - 4))  # empurra para cumprir os objetivos
+			"sem_fama": c.fama = 2000
+			_:
+				if c.energia < 45:
+					c.descansar()
+				else:
+					c.treinar(["vel", "est", "pod"][c.turno % 3])
 
 
 func _salvar(nome: String) -> void:

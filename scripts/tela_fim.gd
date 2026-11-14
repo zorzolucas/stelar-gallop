@@ -32,9 +32,15 @@ func _ready() -> void:
 	nomes.add_child(UI.label("Nota final %s" % Dados.nota(c.attrs), 20, UI.DESTAQUE))
 	topo.add_child(nomes)
 	pv.add_child(topo)
-	for r in c.resultados:
+	var opcionais := c.resultados.filter(func(r): return r.objetivo == 0)
+	for r in c.resultados.filter(func(r): return r.objetivo > 0):
 		var cor := UI.OK if r.ok else UI.PERIGO
-		pv.add_child(UI.label("Semana %d · %s: %dº (objetivo top %d)" % [r.turno, r.nome, r.posicao, r.objetivo], 17, cor))
+		var pos := "%dº" % r.posicao if r.posicao > 0 else "não correu"
+		pv.add_child(UI.label("Semana %d · %s: %s (objetivo top %d)" % [r.turno, r.nome, pos, r.objetivo], 16, cor))
+	if not opcionais.is_empty():
+		var vit := opcionais.filter(func(r): return r.posicao == 1).size()
+		pv.add_child(UI.label("%d corrida(s) opcional(is), %d vitória(s). Fama final: %d." % [opcionais.size(), vit, c.fama], 16))
+	pv.add_child(UI.label("Semente da carreira: %d" % c.semente, 13, UI.SUAVE))
 	var m := c.moeda_total()
 	pv.add_child(UI.label("Moeda: %d dos prêmios + %d de bônus por desempenho = %d" % [m.corridas, m.bonus, m.total], 18, UI.DESTAQUE))
 	p.add_child(pv)

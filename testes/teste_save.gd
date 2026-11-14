@@ -27,8 +27,8 @@ func _initialize() -> void:
 	for campo in CarreiraS.CAMPOS_SAVE:
 		if str(c.get(campo)) != str(d.get(campo)):
 			falhas.append("%s: %s != %s" % [campo, c.get(campo), d.get(campo)])
-	if c.rng.state != d.rng.state:
-		falhas.append("rng")
+	if c.semente != d.semente:
+		falhas.append("semente")
 	# depois de carregar, as duas devem seguir iguais
 	c.treinar("vel")
 	d.treinar("vel")

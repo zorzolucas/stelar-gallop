@@ -60,7 +60,7 @@ func _initialize() -> void:
 	var antes: int = q.moeda
 	var pool_antes: Array = q.pool.duplicate()
 	q.concluir_carreira(c, true)
-	_checar(q.moeda == antes + 30 + 80 + 60, "moeda do fim de carreira")
+	_checar(q.moeda == antes + 30 + 80 + 50, "moeda do fim de carreira")
 	_checar(q.elenco["Lira Alazã"].salva.nota != "", "versão salva guardada")
 	_checar(q.giro == 1 and q.pool != pool_antes, "pool girou")
 

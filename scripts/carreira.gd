@@ -1,15 +1,19 @@
 class_name Carreira
 extends RefCounted
-## Estado e regras da carreira (GDD §4), versão curta do protótipo.
-## Todos os números de BAL são (inicial): pontos de partida para balancear.
+## Estado e regras da carreira (GDD §4 e docs/calendario.md): 48 turnos de meio mês,
+## 5 objetivos, mapa de rotas por trecho, corridas opcionais, fama, clima e férias.
+## Todo sorteio sai da semente da carreira, por contexto (Calendario.rng), então
+## recarregar o save e repetir a ação dá o mesmo resultado.
+## Os números de BAL são (inicial): pontos de partida para balancear.
 
 const BAL := {
-	"turnos": 24,
-	"corridas": {12: {"nome": "Taça de Outono", "objetivo": 5, "media_rivais": 180.0},
-				 24: {"nome": "Grande Prêmio Estelar", "objetivo": 3, "media_rivais": 285.0, "rival": "Polaris Moura"}},
-	"ganho_principal": 38.0,
-	"ganho_secundario": 14.0,
-	"bonus_nivel": 0.15,       # por nível de treino acima do 1
+	"turnos": 48,
+	"ganho_principal": 75.0,
+	"ganho_secundario": 28.0,
+	"bonus_nivel": 0.10,       # por nível de treino acima do 1
+	# ganho cai conforme o atributo sobe: x(retorno_base - retorno_queda * atributo/limite)
+	"retorno_base": 1.15,
+	"retorno_queda": 0.45,
 	"usos_por_nivel": 3,       # repetições para subir o nível do treino
 	"bonus_natural": 0.10,
 	"custo_energia": 22,
@@ -24,11 +28,17 @@ const BAL := {
 	"limite_attr": 1000.0,     # +40 por nível de vínculo (1200 no vínculo 5, GDD §3.5)
 	"vinculo_limite": 40.0,
 	"vinculo_attr": 8.0,       # atributos iniciais extras por nível de vínculo
+	# corridas (calendario.md §7)
+	"energia_corrida": 15,
+	"energia_seguidas": 10,    # extra na 3ª corrida em 3 turnos seguidos
+	"humor_seguidas": 0.3,
+	"premio_desafio": 15.0,    # atributos em todos, até os amuletos (etapa 3b)
 	# moeda (GDD §6.1)
-	"premio_corrida": [50, 30, 20, 10, 10],  # por posição, do 1º ao 5º
+	"moeda_por_fama": 5,       # 1 moeda a cada 5 de fama ganha numa corrida
 	"moeda_base": 80,          # por terminar a carreira (mesmo falhando)
-	"moeda_objetivo": 60,      # por objetivo cumprido
-	"moeda_gp": 60,            # extra por vencer o Grande Prêmio
+	"moeda_objetivo": 50,      # por objetivo cumprido
+	"moeda_gp": 80,            # extra por vencer o Grande Prêmio final
+	"moeda_fama_final": 100,   # +1 moeda a cada 100 de fama no fim
 	# encontros e afinidade (GDD §4.7)
 	"chance_encontro": 0.22,
 	"chance_encontro_sair": 0.6,
@@ -36,6 +46,9 @@ const BAL := {
 	"chance_dupla": 0.35,
 	"bonus_dupla": 0.25,
 	"afinidade_por_dupla": 4,
+	# nós e férias (calendario.md §4.2 e §8)
+	"festival_treino": 0.9,
+	"descanso_extra": 1.5,     # Recuperação e férias
 }
 ## Os testes trocam o caminho para não mexer no save de verdade.
 static var CAMINHO_SAVE := "user://carreira.json"
@@ -59,32 +72,39 @@ var cor: Color
 var distancia: String
 var piso: String
 
+var semente := 0
 var attrs := {}
 var energia := 100
 var humor := 2
 var lesionada := false
 var turno := 1
 var usos_treino := {"vel": 0, "est": 0, "pod": 0, "det": 0, "int": 0}
-var resultados: Array = []   # [{turno, nome, posicao, objetivo, ok}]
+var fama := 0
+var objetivos: Array = []    # os 5 objetivos (Calendario.objetivos)
+var mapas: Array = []        # mapa de cada trecho
+var rota := [[], [], [], []] # coluna escolhida em cada linha de cada trecho
+var acampamentos := {}       # ano -> "serra" ou "praia"
+var resultados: Array = []   # [{turno, nome, cat, posicao, objetivo (0 = opcional), ok, fama}]
+var turnos_com_corrida: Array = []
+var corrida_atual := {}      # corrida escolhida e ainda não corrida
+var desafios_feitos: Array = []
+var serra := false           # Mistério "Treino na serra" pendente
+var unico_garantido := false # Mistério "Noite sem dormir"
 var terminou := false
 var falhou_objetivo := false
 var afinidade := {}          # colega -> -20..100
 var vistos: Array = []       # ids de encontros únicos já vistos
 var ultimo_encontro := ""
 var ultima_corrida := ""     # "vitoria", "derrota" ou "" (consumido pelos encontros)
-var duplas := {}             # treino -> colega que aparece nele nesta semana
-var encontro_pendente := {}  # encontro sorteado para esta semana, ainda sem resposta
+var duplas := {}             # treino -> colega que aparece nele neste turno
+var encontro_pendente := {}  # {id, tipo: "encontro"|"misterio"|"vespera", outra}
 var vinculo := 0
 var limite := 1000.0
 var moeda_corridas := 0      # prêmios das corridas desta carreira
-var rng := RandomNumberGenerator.new()
 
 
-func _init(g: Dictionary, ini: Dictionary, seed: int = 0, vinculo_: int = 0) -> void:
-	if seed == 0:
-		rng.randomize()
-	else:
-		rng.seed = seed
+func _init(g: Dictionary, ini: Dictionary, semente_: int = 0, vinculo_: int = 0) -> void:
+	semente = semente_ if semente_ != 0 else randi()
 	nome = g.nome
 	estilo = g.estilo
 	aptidao = g.aptidao
@@ -102,44 +122,178 @@ func _init(g: Dictionary, ini: Dictionary, seed: int = 0, vinculo_: int = 0) -> 
 	for colega in enc.get("colegas", []):
 		if colega != nome:
 			afinidade[colega] = int(iniciais_af.get(colega, 0))
+	objetivos = Calendario.objetivos(semente, aptidao, distancia, piso)
+	for i in Dados.calendario.trechos.size():
+		mapas.append(Calendario.gerar_mapa(semente, i))
 	_sortear_duplas()
 
+
+func _rng(contexto: String) -> RandomNumberGenerator:
+	return Calendario.rng(semente, [contexto, turno])
+
+
+func _primeiro_nome() -> String:
+	return nome.split(" ")[0]
+
+
+static func _curto(n: String) -> String:
+	return n.split(" ")[0]
+
+
+# ---------- contexto do turno ----------
+
+func clima() -> String:
+	return Calendario.clima(semente, turno)
+
+
+func trecho() -> int:
+	return Calendario.trecho_de(turno)
+
+
+## Nó do mapa em que ela está neste mês, ou {} (fora de trecho ou ainda sem escolha).
+func no_atual() -> Dictionary:
+	var t := trecho()
+	if t < 0:
+		return {}
+	var linha := Calendario.linha_do_mapa(turno, t)
+	if rota[t].size() <= linha:
+		return {}
+	return mapas[t][linha][rota[t][linha]]
+
+
+func tipo_no() -> String:
+	return no_atual().get("tipo", "")
+
+
+func objetivo_do_turno() -> Dictionary:
+	for o in objetivos:
+		if o.turno == turno:
+			return o
+	return {}
+
+
+func proximo_objetivo() -> Dictionary:
+	for o in objetivos:
+		if o.turno >= turno:
+			return o
+	return {}
+
+
+func em_ferias() -> bool:
+	return Calendario.e_ferias(turno)
+
+
+func acampamento() -> String:
+	return acampamentos.get(str(Calendario.mes_idx(turno) / 12), "")
+
+
+## O que a tela precisa resolver antes das ações normais deste turno:
+## "encontro", "mapa", "ferias", "corrida", "objetivo", "sem_fama" ou "" (ações).
+func pendencia() -> String:
+	if not encontro_pendente.is_empty():
+		return "encontro"
+	if not corrida_atual.is_empty():
+		return "corrida"
+	var t := trecho()
+	if t >= 0 and rota[t].size() <= Calendario.linha_do_mapa(turno, t):
+		return "mapa"
+	if em_ferias() and acampamento() == "":
+		return "ferias"
+	var o := objetivo_do_turno()
+	if not o.is_empty():
+		return "sem_fama" if fama < int(o.get("fama_min", 0)) else "objetivo"
+	return ""
+
+
+## Colunas que ela pode escolher na próxima linha do mapa do trecho atual.
+func opcoes_mapa() -> Array:
+	var t := trecho()
+	var feitas: Array = rota[t]
+	if feitas.is_empty():
+		return [0, 1, 2]
+	return Calendario.vizinhos(feitas[-1])
+
+
+func escolher_no(col: int) -> String:
+	var t := trecho()
+	rota[t].append(col)
+	var no := no_atual()
+	var info: Dictionary = Dados.calendario.nos[no.tipo]
+	var txt := "Rota escolhida: %s." % info.nome
+	if no.tipo == "misterio":
+		_abrir_misterio()
+	return txt
+
+
+func escolher_acampamento(qual: String) -> String:
+	acampamentos[str(Calendario.mes_idx(turno) / 12)] = qual
+	if qual == "serra":
+		return "Acampamento na serra: treinos de Estamina e Determinação contam 1 nível acima."
+	return "Acampamento na praia: treinos de Velocidade e Poder contam 1 nível acima."
+
+
+# ---------- treino ----------
 
 func nivel_treino(t: String) -> int:
 	return mini(5, 1 + usos_treino[t] / BAL.usos_por_nivel)
 
 
-func chance_falha() -> float:
+## Nível que vale neste turno, com os bônus de nó, clima, férias e Mistério.
+func nivel_efetivo(t: String) -> int:
+	var n := nivel_treino(t)
+	var no := no_atual()
+	if no.get("tipo", "") == "foco" and no.get("foco", "") == t:
+		n += 1
+	if no.get("tipo", "") == "biblioteca" and t == "int":
+		n += 1
+	match clima():
+		"chuva": n += 1 if t == "pod" else 0
+		"frio": n += 1 if t == "det" else 0
+	match acampamento() if em_ferias() else "":
+		"serra": n += 1 if t in ["est", "det"] else 0
+		"praia": n += 1 if t in ["vel", "pod"] else 0
+	if serra and t in ["est", "det"]:
+		n += 1
+	return mini(5, n)
+
+
+func chance_falha(t: String = "") -> float:
 	if energia >= BAL.limite_falha:
 		return 0.0
-	return BAL.falha_max * float(BAL.limite_falha - energia) / BAL.limite_falha
+	var c: float = BAL.falha_max * float(BAL.limite_falha - energia) / BAL.limite_falha
+	if serra and t in ["est", "det"]:
+		c *= 2.0
+	return minf(c, 0.95)
 
 
 func custo(t: String) -> int:
-	return BAL.custo_energia_int if t == "int" else BAL.custo_energia
+	var c: int = BAL.custo_energia_int if t == "int" else BAL.custo_energia
+	if clima() == "calor":
+		c += 5
+	return c
 
 
 func ganho_previsto(t: String) -> Dictionary:
-	var m: float = (1.0 + BAL.bonus_nivel * (nivel_treino(t) - 1)) * HUMOR_TREINO[humor]
+	var m: float = (1.0 + BAL.bonus_nivel * (nivel_efetivo(t) - 1)) * HUMOR_TREINO[humor]
 	if t in naturais:
 		m *= 1.0 + BAL.bonus_natural
 	if lesionada:
 		m *= BAL.corte_lesao
 	if duplas.has(t):
 		m *= 1.0 + BAL.bonus_dupla
+	if tipo_no() == "festival":
+		m *= BAL.festival_treino
+	match clima():
+		"chuva": m *= 0.9 if t == "vel" else 1.0
+		"vento": m *= 1.1 if t == "int" else 1.0
 	var tr: Dictionary = TREINOS[t]
-	return {tr.principal: BAL.ganho_principal * m, tr.secundario: BAL.ganho_secundario * m}
+	return {tr.principal: BAL.ganho_principal * m * _retorno(tr.principal),
+		tr.secundario: BAL.ganho_secundario * m * _retorno(tr.secundario)}
 
 
-func corrida_do_turno() -> Dictionary:
-	return BAL.corridas.get(turno, {})
-
-
-func proxima_corrida() -> Array:
-	for t in BAL.corridas.keys():
-		if t >= turno:
-			return [t, BAL.corridas[t]]
-	return []
+## Retorno decrescente: quanto maior o atributo, menos o treino rende (curva do calendário §2.1).
+func _retorno(k: String) -> float:
+	return maxf(0.3, BAL.retorno_base - BAL.retorno_queda * attrs[k] / limite)
 
 
 func _mudar_humor(d: int) -> void:
@@ -153,22 +307,28 @@ func _limitar() -> void:
 
 ## Cada ação devolve um texto curto do que aconteceu.
 func treinar(t: String) -> String:
-	var falha := rng.randf() < chance_falha()
+	var r := _rng("treino:" + t)
+	var falha := r.randf() < chance_falha(t)
+	var era_serra := serra and t in ["est", "det"]
 	energia = maxi(0, energia - custo(t))
+	if era_serra:
+		serra = false
 	if falha:
 		attrs[t] -= BAL.perda_falha
-		var outro: String = SimCorrida.KEYS[rng.randi() % 5]
+		var outro: String = SimCorrida.KEYS[r.randi() % 5]
 		attrs[outro] -= BAL.perda_falha * 0.5
-		_mudar_humor(-1)
-		var txt := "O treino de %s falhou! %s perdeu atributos e ficou chateada." % [Dados.ATTR_NOME[t], _primeiro_nome()]
-		if rng.randf() < BAL.chance_lesao:
+		var txt := "O treino de %s falhou! %s perdeu atributos." % [Dados.ATTR_NOME[t], _primeiro_nome()]
+		if tipo_no() != "recuperacao":
+			_mudar_humor(-1)
+			txt += " Ela ficou chateada."
+		if r.randf() < BAL.chance_lesao:
 			lesionada = true
 			txt += " Ela se machucou de leve."
 		_limitar()
 		_fim_turno()
 		return txt
 	var g := ganho_previsto(t)
-	var var_ := rng.randf_range(0.85, 1.15)
+	var var_ := r.randf_range(0.85, 1.15)
 	var partes := []
 	for k in g:
 		var v: float = round(g[k] * var_)
@@ -185,8 +345,17 @@ func treinar(t: String) -> String:
 	return txt
 
 
+func descanso_previsto() -> int:
+	var d: float = BAL.descanso
+	if tipo_no() == "recuperacao" or em_ferias():
+		d *= BAL.descanso_extra
+	if clima() == "frio":
+		d *= 0.9
+	return roundi(d)
+
+
 func descansar() -> String:
-	energia = mini(100, energia + BAL.descanso)
+	energia = mini(100, energia + descanso_previsto())
 	var txt := "%s descansou e recuperou energia." % _primeiro_nome()
 	if lesionada:
 		lesionada = false
@@ -198,41 +367,99 @@ func descansar() -> String:
 func sair() -> String:
 	energia = mini(100, energia + BAL.sair_energia)
 	_mudar_humor(1)
-	_fim_turno(BAL.chance_encontro_sair)
+	var sempre := tipo_no() == "festival" or em_ferias()
+	_fim_turno(1.0 if sempre else BAL.chance_encontro_sair)
 	return "%s saiu para passear e voltou de bom humor." % _primeiro_nome()
 
 
 func enfermaria() -> String:
 	lesionada = false
 	energia = mini(100, energia + 10)
+	if tipo_no() == "recuperacao":
+		return "Tratamento na enfermaria. A lesão sarou, e na Recuperação isso não gasta o turno."
 	_fim_turno()
 	return "Tratamento na enfermaria. A lesão sarou."
 
 
-## Monta a corrida do turno: a jogadora + 11 adversárias do elenco.
+# ---------- corridas ----------
+
+## Corridas opcionais deste turno (só em Circuito e no 2º turno do Desafio).
+func corridas_opcionais() -> Array:
+	if not objetivo_do_turno().is_empty() or em_ferias() or Calendario.e_vespera(turno):
+		return []
+	var tipo := tipo_no()
+	var lista := []
+	if tipo == "circuito":
+		lista = Calendario.corridas_do_circuito(semente, turno, distancia, piso)
+	elif tipo == "desafio" and (turno - 1) % 2 == 1 and not turno in desafios_feitos:
+		lista = [Calendario.corrida_desafio(semente, turno, distancia, piso)]
+	return lista
+
+
+func pode_entrar(c: Dictionary) -> bool:
+	return fama >= int(Dados.calendario.categorias[c.cat].fama_entrada)
+
+
+func fama_prevista(c: Dictionary, posicao: int = 1) -> int:
+	var cal: Dictionary = Dados.calendario
+	var base: float = cal.categorias[c.cat].fama
+	var mult: float = cal.fama_por_posicao[posicao - 1] if posicao <= cal.fama_por_posicao.size() else cal.fama_resto
+	return roundi(base * mult)
+
+
+func escolher_corrida(c: Dictionary) -> void:
+	corrida_atual = c
+
+
+func _corrida_seguida() -> bool:
+	return (turno - 1) in turnos_com_corrida and (turno - 2) in turnos_com_corrida
+
+
+## Monta a corrida: a jogadora + 11 adversárias do elenco (com a rival, se houver).
 func montar_corrida(elenco: Array) -> Dictionary:
-	var c: Dictionary = corrida_do_turno()
-	var dist_m: float = Dados.DISTANCIAS[distancia]
+	var c := corrida_atual if not corrida_atual.is_empty() else objetivo_do_turno()
+	var cal: Dictionary = Dados.calendario
+	var forca: float = cal.categorias[c.cat].forca
+	if c.get("desafio", false):
+		forca *= cal.forca_desafio
+	var r := _rng("corrida:" + c.get("id", "x"))
 	var field := [{
 		"nome": nome, "estilo": estilo, "attrs": attrs.duplicate(),
-		"mult": Dados.APT[aptidao[distancia]] * Dados.APT[aptidao[piso]] * HUMOR_CORRIDA[humor],
+		"mult": Dados.APT[aptidao[c.dist]] * Dados.APT[aptidao[c.piso]] * HUMOR_CORRIDA[humor],
 		"unica": unica, "jogadora": true,
 	}]
 	var pool := elenco.filter(func(g): return g.nome != nome)
-	pool.shuffle()
+	# embaralha com a semente, para repetir no mesmo save
+	for i in range(pool.size() - 1, 0, -1):
+		var j := r.randi() % (i + 1)
+		var tmp = pool[i]
+		pool[i] = pool[j]
+		pool[j] = tmp
 	var vagas := 11
-	if c.has("rival"):
+	var rival: String = c.get("rival", "")
+	if rival != "":
 		for rv in Dados.rivais:
-			if rv.nome == c.rival:
-				field.append(_adversaria(rv, c.media_rivais * rv.forca, rv.get("unica", "")))
+			if rv.nome == rival:
+				field.append(_adversaria(rv, forca * cal.forca_rival, rv.get("unica", ""), c))
 				vagas -= 1
+	elif c.cat.begins_with("gp"):
+		# campeã da casa gerada (calendario.md §3.1)
+		var campea: Dictionary = pool.pop_back()
+		var adv := _adversaria(campea, forca * cal.forca_rival, "", c)
+		field.append(adv)
+		vagas -= 1
+	if c.get("desafio", false):
+		# a elite é a primeira adversária, já com +20%
+		pass
+	var v: float = cal.variacao_npc
 	for g in pool.slice(0, vagas):
-		field.append(_adversaria(g, c.media_rivais * rng.randf_range(0.9, 1.1), ""))
-	return {"nome": c.nome, "objetivo": c.objetivo, "distancia": dist_m, "field": field}
+		field.append(_adversaria(g, forca * r.randf_range(1.0 - v, 1.0 + v), "", c))
+	return {"nome": c.nome, "objetivo": int(c.get("meta", 0)), "distancia": Calendario.metros(c),
+		"field": field, "clima": clima(), "seed": hash([semente, turno, c.get("id", "x")])}
 
 
 ## Adversária com o perfil da garota escalado para a média pedida.
-func _adversaria(g: Dictionary, media: float, unica_: String) -> Dictionary:
+func _adversaria(g: Dictionary, media: float, unica_: String, c: Dictionary) -> Dictionary:
 	var soma := 0.0
 	for k in SimCorrida.KEYS:
 		soma += g.atributos[k]
@@ -242,70 +469,108 @@ func _adversaria(g: Dictionary, media: float, unica_: String) -> Dictionary:
 		a[k] = g.atributos[k] * escala
 	return {
 		"nome": g.nome, "estilo": g.estilo, "attrs": a,
-		"mult": Dados.APT[g.aptidao[distancia]] * Dados.APT[g.aptidao[piso]],
+		"mult": Dados.APT[g.aptidao[c.dist]] * Dados.APT[g.aptidao[c.piso]],
 		"unica": unica_, "jogadora": false,
 	}
 
 
 func registrar_corrida(posicao: int) -> String:
-	var c: Dictionary = corrida_do_turno()
-	var ok: bool = posicao <= c.objetivo
-	resultados.append({"turno": turno, "nome": c.nome, "posicao": posicao, "objetivo": c.objetivo, "ok": ok})
+	var obj := objetivo_do_turno()
+	var c := corrida_atual if not corrida_atual.is_empty() else obj
+	var e_obj := corrida_atual.is_empty()
+	corrida_atual = {}
+	var ganho_fama := fama_prevista(c, posicao)
+	fama += ganho_fama
+	var premio := ganho_fama / BAL.moeda_por_fama
+	moeda_corridas += premio
+	var custo_e: int = BAL.energia_corrida
+	var seguida := _corrida_seguida()
+	if seguida:
+		custo_e += BAL.energia_seguidas
+	energia = maxi(0, energia - custo_e)
+	turnos_com_corrida.append(turno)
+	var txt := "%s terminou em %dº na %s. +%d de fama, %d moedas." % [_primeiro_nome(), posicao, c.nome, ganho_fama, premio]
+	if seguida and _rng("seguidas").randf() < BAL.humor_seguidas:
+		_mudar_humor(-1)
+		txt += " Três corridas seguidas pesaram no humor."
+	ultima_corrida = "vitoria" if posicao == 1 else "derrota"
+	var ok := true
+	var meta := 0
+	if e_obj:
+		meta = int(obj.meta)
+		ok = posicao <= meta
+		if obj.has("maratona"):
+			var boas := resultados.filter(func(x): return x.turno >= 5 and x.posicao <= 5).size()
+			ok = boas + (1 if posicao <= 5 else 0) >= int(obj.maratona)
 	if posicao == 1:
 		_mudar_humor(1)
-	elif not ok:
+	elif e_obj and not ok:
 		_mudar_humor(-1)
-	ultima_corrida = "vitoria" if posicao == 1 else "derrota"
-	energia = maxi(0, energia - 15)
-	var txt := "%s terminou em %dº na %s." % [_primeiro_nome(), posicao, c.nome]
-	if posicao <= BAL.premio_corrida.size():
-		var premio: int = BAL.premio_corrida[posicao - 1]
-		moeda_corridas += premio
-		txt += " Prêmio: %d moedas." % premio
-	if not ok:
+	if c.get("desafio", false):
+		desafios_feitos.append(turno)
+		if posicao <= 3:
+			for k in attrs:
+				attrs[k] += BAL.premio_desafio
+			_limitar()
+			txt += " Venceu o Desafio: +%d em todos os atributos!" % BAL.premio_desafio
+		else:
+			_mudar_humor(-1)
+			txt += " Ficou fora do top 3 no Desafio e o humor caiu."
+	resultados.append({"turno": turno, "nome": c.nome, "cat": c.cat, "posicao": posicao,
+		"objetivo": meta, "ok": ok, "fama": ganho_fama})
+	if e_obj and not ok:
 		falhou_objetivo = true
 		terminou = true
-		return txt + " O objetivo era o top %d. A carreira acaba aqui." % c.objetivo
+		return txt + " O objetivo era: %s. A carreira acaba aqui." % obj.texto.to_lower()
 	_fim_turno(BAL.chance_encontro)
-	return txt + " Objetivo cumprido!"
+	return txt + (" Objetivo cumprido!" if e_obj else "")
 
+
+## Objetivo 4 sem a fama mínima: a carreira acaba sem correr.
+func falhar_por_fama() -> String:
+	var o := objetivo_do_turno()
+	resultados.append({"turno": turno, "nome": o.nome, "cat": o.cat, "posicao": 0,
+		"objetivo": int(o.meta), "ok": false, "fama": 0})
+	falhou_objetivo = true
+	terminou = true
+	return "%s não tinha os %d de fama para entrar na %s. A carreira acaba aqui." % [_primeiro_nome(), o.fama_min, o.nome]
+
+
+# ---------- passagem de turno ----------
 
 func _fim_turno(chance_encontro: float = BAL.chance_encontro) -> void:
 	turno += 1
 	if turno > BAL.turnos:
 		terminou = true
 		return
-	# o humor oscila um pouco sozinho
-	var r := rng.randf()
-	if r < 0.07:
+	var r := _rng("humor")
+	var x := r.randf()
+	if x < 0.07:
 		_mudar_humor(-1)
-	elif r < 0.12:
+	elif x < 0.12:
+		_mudar_humor(1)
+	if (turno - 1) % 2 == 0 and clima() == "estrelas":
 		_mudar_humor(1)
 	_sortear_duplas()
-	if corrida_do_turno().is_empty():
+	if Calendario.e_vespera(turno):
+		_abrir_vespera()
+	elif objetivo_do_turno().is_empty():
 		_sortear_encontro(chance_encontro)
 	ultima_corrida = ""
 
 
 func _sortear_duplas() -> void:
 	duplas = {}
+	var r := _rng("duplas")
 	var livres := TREINOS.keys()
 	for colega in afinidade:
-		if afinidade[colega] >= BAL.afinidade_dupla and rng.randf() < BAL.chance_dupla and not livres.is_empty():
-			var t: String = livres[rng.randi() % livres.size()]
+		if afinidade[colega] >= BAL.afinidade_dupla and r.randf() < BAL.chance_dupla and not livres.is_empty():
+			var t: String = livres[r.randi() % livres.size()]
 			livres.erase(t)
 			duplas[t] = colega
 
 
-func _primeiro_nome() -> String:
-	return nome.split(" ")[0]
-
-
-static func _curto(n: String) -> String:
-	return n.split(" ")[0]
-
-
-# ---------- encontros (GDD §4.7) ----------
+# ---------- encontros (GDD §4.7), Mistério e véspera ----------
 
 func _condicoes_ok(e: Dictionary) -> bool:
 	var q: Dictionary = e.get("quando", {})
@@ -322,56 +587,91 @@ func _condicoes_ok(e: Dictionary) -> bool:
 
 func _sortear_encontro(chance: float) -> void:
 	var lista: Array = Dados.encontros.get("encontros", [])
-	# eventos ligados à corrida que acabou de acontecer têm prioridade
+	var r := _rng("encontro")
 	if ultima_corrida != "":
 		for e in lista:
 			var q: Dictionary = e.get("quando", {})
 			var de_corrida := q.has("apos_derrota") or q.has("apos_vitoria")
 			if e.garota == nome and not e.id in vistos and de_corrida and _condicoes_ok(e):
-				_abrir_encontro(e)
+				_abrir_encontro(e, r)
 				return
-	if rng.randf() >= chance:
+	if r.randf() >= chance:
 		return
 	var unicos := lista.filter(func(e): return e.garota == nome and not e.id in vistos and _condicoes_ok(e))
 	var genericos := lista.filter(func(e): return e.garota == null and e.id != ultimo_encontro and _condicoes_ok(e))
 	var escolhido: Dictionary
-	if not unicos.is_empty() and (genericos.is_empty() or rng.randf() < 0.5):
-		escolhido = unicos[rng.randi() % unicos.size()]
+	if not unicos.is_empty() and (unico_garantido or genericos.is_empty() or r.randf() < 0.5):
+		escolhido = unicos[r.randi() % unicos.size()]
+		unico_garantido = false
 	elif not genericos.is_empty():
-		escolhido = genericos[rng.randi() % genericos.size()]
+		escolhido = genericos[r.randi() % genericos.size()]
 	else:
 		return
-	_abrir_encontro(escolhido)
+	_abrir_encontro(escolhido, r)
 
 
-func _abrir_encontro(e: Dictionary) -> void:
+func _abrir_encontro(e: Dictionary, r: RandomNumberGenerator) -> void:
 	var colegas := afinidade.keys()
-	var outra: String = colegas[rng.randi() % colegas.size()] if not colegas.is_empty() else ""
-	encontro_pendente = {"id": e.id, "outra": outra}
+	var outra: String = colegas[r.randi() % colegas.size()] if not colegas.is_empty() else ""
+	encontro_pendente = {"id": e.id, "tipo": "encontro", "outra": outra}
 	ultimo_encontro = e.id
 	if e.garota != null:
 		vistos.append(e.id)
 
 
+func _abrir_misterio() -> void:
+	var r := _rng("misterio")
+	var lista: Array = Dados.calendario.misterios
+	var e: Dictionary = lista[r.randi() % lista.size()]
+	var colegas := afinidade.keys()
+	encontro_pendente = {"id": e.id, "tipo": "misterio", "outra": colegas[r.randi() % colegas.size()]}
+
+
+func _abrir_vespera() -> void:
+	var o := proximo_objetivo()
+	if o.get("rival", "") == "":
+		return
+	encontro_pendente = {"id": "vespera", "tipo": "vespera", "outra": "", "rival": o.rival}
+
+
 func encontro_atual() -> Dictionary:
 	if encontro_pendente.is_empty():
 		return {}
-	for e in Dados.encontros.get("encontros", []):
-		if e.id == encontro_pendente.id:
-			return e
+	match encontro_pendente.get("tipo", "encontro"):
+		"misterio":
+			for e in Dados.calendario.misterios:
+				if e.id == encontro_pendente.id:
+					return e
+		"vespera":
+			return Dados.calendario.vespera
+		_:
+			for e in Dados.encontros.get("encontros", []):
+				if e.id == encontro_pendente.id:
+					return e
 	return {}
 
 
-## Troca {nome} e {outra} nos textos do encontro.
+## Troca {nome}, {outra} e {rival} nos textos do encontro.
 func texto(t: String) -> String:
-	return t.replace("{nome}", _primeiro_nome()).replace("{outra}", _curto(encontro_pendente.get("outra", "")))
+	return t.replace("{nome}", _primeiro_nome()).replace("{outra}", _curto(encontro_pendente.get("outra", ""))) \
+		.replace("{rival}", encontro_pendente.get("rival", ""))
+
+
+func _mult_afinidade() -> float:
+	var m := 1.0
+	if tipo_no() == "festival":
+		m *= 2.0
+	if clima() == "estrelas":
+		m *= 1.5
+	return m
 
 
 ## Aplica a escolha i do encontro pendente e devolve o texto do resultado.
 func escolher(i: int) -> String:
 	var e := encontro_atual()
 	var esc: Dictionary = e.escolhas[i]
-	var deu_certo := not esc.has("chance") or rng.randf() < float(esc.chance)
+	var r := _rng("escolha:" + str(encontro_pendente.id))
+	var deu_certo := not esc.has("chance") or r.randf() < float(esc.chance)
 	var ef: Dictionary = esc.efeitos if deu_certo else esc.get("efeitos_falha", esc.efeitos)
 	var resultado := texto(esc.resultado if deu_certo else esc.get("resultado_falha", esc.resultado))
 	var outra: String = encontro_pendente.get("outra", "")
@@ -387,8 +687,9 @@ func escolher(i: int) -> String:
 				partes.append("energia %+d" % v)
 			"afinidade":
 				if outra != "":
-					_mudar_afinidade(outra, int(v))
-					partes.append("afinidade com %s %+d" % [_curto(outra), v])
+					var d := roundi(int(v) * _mult_afinidade())
+					_mudar_afinidade(outra, d)
+					partes.append("afinidade com %s %+d" % [_curto(outra), d])
 			"nivel_treino":
 				var mais := "vel"
 				for t in usos_treino:
@@ -396,6 +697,13 @@ func escolher(i: int) -> String:
 						mais = t
 				usos_treino[mais] += BAL.usos_por_nivel * int(v)
 				partes.append("treino de %s nível %+d" % [Dados.ATTR_NOME[mais], v])
+			"fama":
+				fama += int(v)
+				partes.append("fama %+d" % v)
+			"serra":
+				serra = true
+			"unico_garantido":
+				unico_garantido = true
 			"perde_turno":
 				pass
 			_:
@@ -406,7 +714,7 @@ func escolher(i: int) -> String:
 	encontro_pendente = {}
 	if ef.get("perde_turno", false):
 		_fim_turno(0.0)
-		partes.append("a semana passou")
+		partes.append("o turno passou")
 	if not partes.is_empty():
 		resultado += " (%s)" % ", ".join(partes)
 	return resultado
@@ -419,20 +727,21 @@ func _mudar_afinidade(colega: String, d: int) -> void:
 
 # ---------- save (GDD §10: automático a cada turno, um slot) ----------
 
-const CAMPOS_SAVE := ["attrs", "energia", "humor", "lesionada", "turno", "usos_treino", "resultados",
-	"terminou", "falhou_objetivo", "afinidade", "vistos", "ultimo_encontro", "ultima_corrida",
-	"duplas", "encontro_pendente", "moeda_corridas"]
+const CAMPOS_SAVE := ["attrs", "energia", "humor", "lesionada", "turno", "usos_treino", "fama",
+	"rota", "acampamentos", "resultados", "turnos_com_corrida", "corrida_atual", "desafios_feitos",
+	"serra", "unico_garantido", "terminou", "falhou_objetivo", "afinidade", "vistos",
+	"ultimo_encontro", "ultima_corrida", "duplas", "encontro_pendente", "moeda_corridas"]
 
 
 ## Salva também a carreira terminada: ela só é apagada depois que o jogador decide
 ## entre substituir e descartar, para não perder a moeda se o jogo fechar antes.
 func salvar() -> void:
-	var d := {"versao": 1, "nome": nome, "vinculo": vinculo, "rng": str(rng.state)}
+	var d := {"versao": 2, "nome": nome, "vinculo": vinculo, "semente": str(semente)}
 	for campo in CAMPOS_SAVE:
 		d[campo] = get(campo)
 	var f := FileAccess.open(CAMINHO_SAVE, FileAccess.WRITE)
 	if f:
-		f.store_string(JSON.stringify(d, "  ", false))  # sem ordenar: a ordem das chaves importa para o RNG
+		f.store_string(JSON.stringify(d, "  ", false))  # sem ordenar: a ordem das chaves importa
 
 
 static func tem_save() -> bool:
@@ -444,12 +753,12 @@ static func apagar_save() -> void:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(CAMINHO_SAVE))
 
 
-## Lê o save, ou devolve null se não houver ou estiver inválido.
+## Lê o save, ou devolve null se não houver, estiver inválido ou for de uma versão antiga.
 static func carregar() -> Carreira:
 	if not tem_save():
 		return null
 	var d = JSON.parse_string(FileAccess.get_file_as_string(CAMINHO_SAVE))
-	if not d is Dictionary or not d.has("nome"):
+	if not d is Dictionary or not d.has("nome") or int(d.get("versao", 0)) != 2:
 		return null
 	# autoloads não podem ser usados direto numa função estática
 	var dados: Node = (Engine.get_main_loop() as SceneTree).root.get_node("Dados")
@@ -457,40 +766,39 @@ static func carregar() -> Carreira:
 	var ini: Dictionary = dados.config_carreira(d.nome)
 	if g.is_empty() or ini.is_empty():
 		return null
-	var c := Carreira.new(g, ini, 0, int(d.get("vinculo", 0)))
+	var c := Carreira.new(g, ini, int(str(d.semente)), int(d.get("vinculo", 0)))
 	for campo in CAMPOS_SAVE:
 		if d.has(campo):
 			c.set(campo, d[campo])
 	# o JSON devolve todos os números como float
-	c.energia = int(c.energia)
-	c.humor = int(c.humor)
-	c.turno = int(c.turno)
-	c.moeda_corridas = int(c.moeda_corridas)
+	for campo in ["energia", "humor", "turno", "fama", "moeda_corridas"]:
+		c.set(campo, int(c.get(campo)))
 	for t in c.usos_treino:
 		c.usos_treino[t] = int(c.usos_treino[t])
 	for k in c.afinidade:
 		c.afinidade[k] = int(c.afinidade[k])
 	for r in c.resultados:
-		r.turno = int(r.turno)
-		r.posicao = int(r.posicao)
-		r.objetivo = int(r.objetivo)
-	c.rng.state = int(str(d.get("rng", "0")))
+		for k in ["turno", "posicao", "objetivo", "fama"]:
+			r[k] = int(r[k])
+	c.rota = c.rota.map(func(l): return l.map(func(x): return int(x)))
+	c.turnos_com_corrida = c.turnos_com_corrida.map(func(x): return int(x))
+	c.desafios_feitos = c.desafios_feitos.map(func(x): return int(x))
 	return c
 
 
 # ---------- fim de carreira (GDD §4.8) ----------
 
 func objetivos_cumpridos() -> int:
-	return resultados.filter(func(r): return r.ok).size()
+	return resultados.filter(func(r): return r.objetivo > 0 and r.ok).size()
 
 
 func venceu_gp() -> bool:
 	return resultados.any(func(r): return r.turno == BAL.turnos and r.posicao == 1)
 
 
-## Moeda total da carreira: prêmios das corridas + bônus por desempenho.
+## Moeda total da carreira: prêmios das corridas + bônus por desempenho e fama.
 func moeda_total() -> Dictionary:
-	var bonus: int = BAL.moeda_base + BAL.moeda_objetivo * objetivos_cumpridos()
+	var bonus: int = BAL.moeda_base + BAL.moeda_objetivo * objetivos_cumpridos() + fama / BAL.moeda_fama_final
 	if venceu_gp():
 		bonus += BAL.moeda_gp
 	return {"corridas": moeda_corridas, "bonus": bonus, "total": moeda_corridas + bonus}
@@ -502,4 +810,4 @@ func versao_salva() -> Dictionary:
 	for k in attrs:
 		a[k] = roundi(attrs[k])
 	return {"attrs": a, "nota": Dados.nota(attrs), "objetivos": objetivos_cumpridos(),
-		"resultados": resultados.duplicate(true), "vinculo": vinculo}
+		"fama": fama, "resultados": resultados.duplicate(true), "vinculo": vinculo, "semente": str(semente)}
