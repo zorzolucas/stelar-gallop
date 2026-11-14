@@ -1,0 +1,11 @@
+[
+  {
+    "nome": "Polaris Moura",
+    "estilo": "pon",
+    "atributos": {"vel": 112, "est": 98, "pod": 88, "det": 84, "int": 98},
+    "aptidao": {"sprint": "O", "milha": "B", "media": "X", "longa": "B", "grama": "X", "terra": "O"},
+    "unica": "chama",
+    "forca": 1.12,
+    "_doc": "Rival R1 (elenco.md). Corre o Grande Prêmio com atributos 'forca' x a média da categoria. A habilidade Coroa ainda não existe; usa a Chama da Largada."
+  }
+]
