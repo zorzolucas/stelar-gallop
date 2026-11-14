@@ -1,0 +1,32 @@
+[
+  {
+    "nome": "Lira Alazã",
+    "apelido": "a chama da largada",
+    "descricao": "Competitiva e barulhenta. Lidera desde a largada.",
+    "naturais": ["vel", "est"],
+    "unica": "chama",
+    "cor": "#e8613a",
+    "distancia": "milha",
+    "piso": "grama"
+  },
+  {
+    "nome": "Nashira Tordilha",
+    "apelido": "a estrategista",
+    "descricao": "Calma e observadora. Corre logo atrás do grupo da frente.",
+    "naturais": ["int", "est"],
+    "unica": "leitura",
+    "cor": "#5b8def",
+    "distancia": "media",
+    "piso": "grama"
+  },
+  {
+    "nome": "Mira Pampa",
+    "apelido": "a última a sair, a primeira a chegar",
+    "descricao": "Paciente. Larga no fundo e faz um sprint brutal no final.",
+    "naturais": ["est", "pod"],
+    "unica": "vento",
+    "cor": "#3fbf7f",
+    "distancia": "longa",
+    "piso": "grama"
+  }
+]
