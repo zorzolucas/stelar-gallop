@@ -37,6 +37,40 @@ func inicial(nome: String) -> Dictionary:
 	return {}
 
 
+const DIST_ORDEM := ["sprint", "milha", "media", "longa"]
+const PISO_ORDEM := ["grama", "terra"]
+
+
+## Configuração de carreira de qualquer garota. As 6 do MVP vêm de data/iniciais.json;
+## as outras 42 (só dados) usam a casa como corrida-alvo e os 2 maiores atributos como treinos naturais.
+func config_carreira(nome: String) -> Dictionary:
+	var ini := inicial(nome)
+	if not ini.is_empty():
+		return ini
+	var g := garota(nome)
+	if g.is_empty():
+		return {}
+	var keys: Array = SimCorrida.KEYS.duplicate()
+	keys.sort_custom(func(a, b): return g.atributos[a] > g.atributos[b])
+	return {
+		"nome": nome,
+		"apelido": "",
+		"descricao": "%s especialista em %s na %s." % [ESTILO_NOME[g.estilo],
+			DIST_NOME[DIST_ORDEM[int(g.casa[0])]], PISO_ORDEM[int(g.casa[1])]],
+		"naturais": keys.slice(0, 2),
+		"unica": "",
+		"cor": cor_de(nome).to_html(false),
+		"distancia": DIST_ORDEM[int(g.casa[0])],
+		"piso": PISO_ORDEM[int(g.casa[1])],
+		"inicial": false,
+	}
+
+
+## Cor estável a partir do nome, para as garotas sem cor definida.
+static func cor_de(nome: String) -> Color:
+	return Color.from_hsv(float(absi(hash(nome)) % 360) / 360.0, 0.55, 0.85)
+
+
 func garota(nome: String) -> Dictionary:
 	for g in garotas:
 		if g.nome == nome:

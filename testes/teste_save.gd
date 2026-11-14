@@ -8,6 +8,7 @@ var CarreiraS: GDScript
 
 func _initialize() -> void:
 	CarreiraS = load("res://scripts/carreira.gd")
+	CarreiraS.CAMINHO_SAVE = "user://teste_carreira.json"
 	var dados: Node = root.get_node("Dados")
 	if dados.iniciais.is_empty():
 		dados._ready()

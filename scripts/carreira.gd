@@ -21,7 +21,14 @@ const BAL := {
 	"perda_falha": 10.0,
 	"chance_lesao": 0.35,
 	"corte_lesao": 0.5,
-	"limite_attr": 1000.0,
+	"limite_attr": 1000.0,     # +40 por nível de vínculo (1200 no vínculo 5, GDD §3.5)
+	"vinculo_limite": 40.0,
+	"vinculo_attr": 8.0,       # atributos iniciais extras por nível de vínculo
+	# moeda (GDD §6.1)
+	"premio_corrida": [50, 30, 20, 10, 10],  # por posição, do 1º ao 5º
+	"moeda_base": 80,          # por terminar a carreira (mesmo falhando)
+	"moeda_objetivo": 60,      # por objetivo cumprido
+	"moeda_gp": 60,            # extra por vencer o Grande Prêmio
 	# encontros e afinidade (GDD §4.7)
 	"chance_encontro": 0.22,
 	"chance_encontro_sair": 0.6,
@@ -30,7 +37,8 @@ const BAL := {
 	"bonus_dupla": 0.25,
 	"afinidade_por_dupla": 4,
 }
-const CAMINHO_SAVE := "user://carreira.json"
+## Os testes trocam o caminho para não mexer no save de verdade.
+static var CAMINHO_SAVE := "user://carreira.json"
 const TREINOS := {
 	"vel": {"principal": "vel", "secundario": "pod"},
 	"est": {"principal": "est", "secundario": "det"},
@@ -66,10 +74,13 @@ var ultimo_encontro := ""
 var ultima_corrida := ""     # "vitoria", "derrota" ou "" (consumido pelos encontros)
 var duplas := {}             # treino -> colega que aparece nele nesta semana
 var encontro_pendente := {}  # encontro sorteado para esta semana, ainda sem resposta
+var vinculo := 0
+var limite := 1000.0
+var moeda_corridas := 0      # prêmios das corridas desta carreira
 var rng := RandomNumberGenerator.new()
 
 
-func _init(g: Dictionary, ini: Dictionary, seed: int = 0) -> void:
+func _init(g: Dictionary, ini: Dictionary, seed: int = 0, vinculo_: int = 0) -> void:
 	if seed == 0:
 		rng.randomize()
 	else:
@@ -77,8 +88,10 @@ func _init(g: Dictionary, ini: Dictionary, seed: int = 0) -> void:
 	nome = g.nome
 	estilo = g.estilo
 	aptidao = g.aptidao
+	vinculo = vinculo_
+	limite = BAL.limite_attr + BAL.vinculo_limite * vinculo
 	for k in SimCorrida.KEYS:
-		attrs[k] = float(g.atributos[k])
+		attrs[k] = float(g.atributos[k]) + BAL.vinculo_attr * vinculo
 	naturais = ini.get("naturais", [])
 	unica = ini.get("unica", "")
 	cor = Color(ini.get("cor", "#ffffff"))
@@ -135,7 +148,7 @@ func _mudar_humor(d: int) -> void:
 
 func _limitar() -> void:
 	for k in attrs:
-		attrs[k] = clampf(attrs[k], 0.0, BAL.limite_attr)
+		attrs[k] = clampf(attrs[k], 0.0, limite)
 
 
 ## Cada ação devolve um texto curto do que aconteceu.
@@ -245,6 +258,10 @@ func registrar_corrida(posicao: int) -> String:
 	ultima_corrida = "vitoria" if posicao == 1 else "derrota"
 	energia = maxi(0, energia - 15)
 	var txt := "%s terminou em %dº na %s." % [_primeiro_nome(), posicao, c.nome]
+	if posicao <= BAL.premio_corrida.size():
+		var premio: int = BAL.premio_corrida[posicao - 1]
+		moeda_corridas += premio
+		txt += " Prêmio: %d moedas." % premio
 	if not ok:
 		falhou_objetivo = true
 		terminou = true
@@ -404,14 +421,13 @@ func _mudar_afinidade(colega: String, d: int) -> void:
 
 const CAMPOS_SAVE := ["attrs", "energia", "humor", "lesionada", "turno", "usos_treino", "resultados",
 	"terminou", "falhou_objetivo", "afinidade", "vistos", "ultimo_encontro", "ultima_corrida",
-	"duplas", "encontro_pendente"]
+	"duplas", "encontro_pendente", "moeda_corridas"]
 
 
+## Salva também a carreira terminada: ela só é apagada depois que o jogador decide
+## entre substituir e descartar, para não perder a moeda se o jogo fechar antes.
 func salvar() -> void:
-	if terminou:
-		apagar_save()
-		return
-	var d := {"versao": 1, "nome": nome, "rng": str(rng.state)}
+	var d := {"versao": 1, "nome": nome, "vinculo": vinculo, "rng": str(rng.state)}
 	for campo in CAMPOS_SAVE:
 		d[campo] = get(campo)
 	var f := FileAccess.open(CAMINHO_SAVE, FileAccess.WRITE)
@@ -438,10 +454,10 @@ static func carregar() -> Carreira:
 	# autoloads não podem ser usados direto numa função estática
 	var dados: Node = (Engine.get_main_loop() as SceneTree).root.get_node("Dados")
 	var g: Dictionary = dados.garota(d.nome)
-	var ini: Dictionary = dados.inicial(d.nome)
+	var ini: Dictionary = dados.config_carreira(d.nome)
 	if g.is_empty() or ini.is_empty():
 		return null
-	var c := Carreira.new(g, ini)
+	var c := Carreira.new(g, ini, 0, int(d.get("vinculo", 0)))
 	for campo in CAMPOS_SAVE:
 		if d.has(campo):
 			c.set(campo, d[campo])
@@ -449,6 +465,7 @@ static func carregar() -> Carreira:
 	c.energia = int(c.energia)
 	c.humor = int(c.humor)
 	c.turno = int(c.turno)
+	c.moeda_corridas = int(c.moeda_corridas)
 	for t in c.usos_treino:
 		c.usos_treino[t] = int(c.usos_treino[t])
 	for k in c.afinidade:
@@ -459,3 +476,30 @@ static func carregar() -> Carreira:
 		r.objetivo = int(r.objetivo)
 	c.rng.state = int(str(d.get("rng", "0")))
 	return c
+
+
+# ---------- fim de carreira (GDD §4.8) ----------
+
+func objetivos_cumpridos() -> int:
+	return resultados.filter(func(r): return r.ok).size()
+
+
+func venceu_gp() -> bool:
+	return resultados.any(func(r): return r.turno == BAL.turnos and r.posicao == 1)
+
+
+## Moeda total da carreira: prêmios das corridas + bônus por desempenho.
+func moeda_total() -> Dictionary:
+	var bonus: int = BAL.moeda_base + BAL.moeda_objetivo * objetivos_cumpridos()
+	if venceu_gp():
+		bonus += BAL.moeda_gp
+	return {"corridas": moeda_corridas, "bonus": bonus, "total": moeda_corridas + bonus}
+
+
+## O que fica guardado no elenco se o jogador escolher substituir a versão salva.
+func versao_salva() -> Dictionary:
+	var a := {}
+	for k in attrs:
+		a[k] = roundi(attrs[k])
+	return {"attrs": a, "nota": Dados.nota(attrs), "objetivos": objetivos_cumpridos(),
+		"resultados": resultados.duplicate(true), "vinculo": vinculo}

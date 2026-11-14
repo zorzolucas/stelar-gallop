@@ -46,6 +46,9 @@ const UNICAS := {
 	"chama": {"nome": "Chama da Largada", "fase": 0, "val": 1.2, "dur": 6.0},
 	"leitura": {"nome": "Leitura de Corrida", "fase": 2, "val": 1.2, "dur": 6.0},
 	"vento": {"nome": "Vento de Cauda", "fase": 3, "val": 1.0, "dur": 5.0},
+	"holofote": {"nome": "Holofote", "fase": 2, "val": 1.1, "dur": 6.0},
+	"explosiva": {"nome": "Largada Explosiva", "fase": 0, "val": 1.6, "dur": 4.0},
+	"nunca": {"nome": "Nunca Desisto", "fase": 3, "val": 1.2, "dur": 6.0},
 }
 
 var D: float
@@ -111,9 +114,14 @@ func _tenta_unica(r: Dictionary, p: int, pos: int, n: int, ev: Array) -> void:
 		"vento":
 			ok = pos >= n / 2
 			val += 0.1 * pos
+		"holofote": ok = pos >= 2           # precisa ter quem passar
+		"explosiva": ok = true
+		"nunca": ok = r.hp < 0.3 * r.hpmax
 	if ok and rng.randf() < minf(0.95, r.chance + 0.2):
 		r.buff = val * ESCALA
 		r.buff_t = u.dur / ESCALA
+		if r.unica == "explosiva" and D <= 1400.0:
+			r.buff_t *= 1.5  # na Sprint o efeito dura mais
 		ev.append({"idx": r.idx, "nome": u.nome, "unica": true})
 
 
