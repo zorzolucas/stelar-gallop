@@ -33,13 +33,13 @@ func _initialize() -> void:
 			main.tela._tirar(),
 		func():
 			_salvar("1c_pool")
-			main._comecar_carreira("Lira Alazã")
+			main._comecar_carreira("Lira")
 			var c = main.carreira
 			for t in ["vel", "est", "vel"]:
 				c.encontro_pendente = {}
 				c.treinar(t)
-			c.afinidade["Antares Zaina"] = 35
-			c.duplas = {"pod": "Antares Zaina"}
+			c.afinidade["Antares"] = 35
+			c.duplas = {"pod": "Antares"}
 			for e in dados.encontros.encontros:
 				if e.id == "lira_refeitorio":
 					c._abrir_encontro(e, RandomNumberGenerator.new())

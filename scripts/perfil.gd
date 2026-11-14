@@ -46,11 +46,14 @@ static func carregar() -> Perfil:
 		return null
 	var p := Perfil.new()
 	p.moeda = int(d.get("moeda", 0))
-	p.elenco = d.get("elenco", {})
+	# saves antigos usavam nome e sobrenome ("Lira Alazã"); hoje é só o nome
+	var elenco: Dictionary = d.get("elenco", {})
+	for n in elenco:
+		p.elenco[n.split(" ")[0]] = elenco[n]
 	for n in p.elenco:
 		p.elenco[n].vinculo = int(p.elenco[n].vinculo)
-	p.pool = d.get("pool", [])
-	p.escolhida = d.get("escolhida", "")
+	p.pool = d.get("pool", []).map(func(n): return n.split(" ")[0])
+	p.escolhida = d.get("escolhida", "").split(" ")[0]
 	p.sem_escolhida = int(d.get("sem_escolhida", 0))
 	p.giro = int(d.get("giro", 0))
 	p.semente = int(str(d.get("semente", "0")))

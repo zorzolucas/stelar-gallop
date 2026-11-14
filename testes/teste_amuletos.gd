@@ -15,8 +15,8 @@ func _initialize() -> void:
 	var dados: Node = root.get_node("Dados")
 	if dados.iniciais.is_empty():
 		dados._ready()
-	var lira: Dictionary = dados.garota("Lira Alazã")
-	var c = CarreiraS.new(lira, dados.config_carreira("Lira Alazã"), 11)
+	var lira: Dictionary = dados.garota("Lira")
+	var c = CarreiraS.new(lira, dados.config_carreira("Lira"), 11)
 
 	# oferta: 3 diferentes, nenhum de estilo errado (Lira é Ponteira)
 	c.oferecer_amuleto(3, false)
@@ -27,7 +27,7 @@ func _initialize() -> void:
 	_checar(c.pendencia() == "amuleto", "pendência de amuleto")
 	# difícil: garante incomum ou raro
 	for s in 30:
-		var d = CarreiraS.new(lira, dados.config_carreira("Lira Alazã"), 100 + s)
+		var d = CarreiraS.new(lira, dados.config_carreira("Lira"), 100 + s)
 		d.oferecer_amuleto(4, true)
 		_checar(d.oferta_amuleto.any(func(id): return dados.amuleto(id).tipo in ["estilo", "raro"]), "oferta difícil sem raro")
 
@@ -40,7 +40,7 @@ func _initialize() -> void:
 	_checar(not "estrela_cadente" in c.amuletos, "descartar o novo no limite")
 
 	# efeitos
-	var base = CarreiraS.new(lira, dados.config_carreira("Lira Alazã"), 11)
+	var base = CarreiraS.new(lira, dados.config_carreira("Lira"), 11)
 	var g0: float = base.ganho_previsto("vel").vel
 	base.amuletos = ["ferradura"]
 	var g1: float = base.ganho_previsto("vel").vel
@@ -55,7 +55,7 @@ func _initialize() -> void:
 	_checar(base.energia_corrida() == 10, "Sapatilha -5 de energia")
 
 	# Estrela Cadente: com energia 0 a falha vira sucesso uma vez
-	var e = CarreiraS.new(lira, dados.config_carreira("Lira Alazã"), 3)
+	var e = CarreiraS.new(lira, dados.config_carreira("Lira"), 3)
 	e.amuletos = ["estrela_cadente"]
 	e.energia = 0
 	var vel0: float = e.attrs.vel
@@ -69,7 +69,7 @@ func _initialize() -> void:
 	_checar(e.estrela_usada, "Estrela Cadente nunca disparou")
 
 	# loja
-	var f = CarreiraS.new(lira, dados.config_carreira("Lira Alazã"), 5)
+	var f = CarreiraS.new(lira, dados.config_carreira("Lira"), 5)
 	_checar(f.habilidades.size() == 2, "começa com 2 habilidades")
 	_checar(not f.pode_comprar("curva_limpa"), "sem pontos não compra")
 	f.pontos = 1000

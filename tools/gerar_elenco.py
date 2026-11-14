@@ -10,19 +10,19 @@ TOTAL = 460  # soma dos atributos iniciais
 
 # MVP: nome, estilo, atributos, aptidões (Sprint Milha Média Longa | Grama Terra), combinação-casa
 MVP = [
-    ("Lira Alazã",       "pon", (110, 95, 90, 80, 70),  "BXBR", "XO", (1, 0)),
-    ("Nashira Tordilha", "per", (105, 95, 85, 85, 100), "OBXB", "XO", (2, 0)),
-    ("Mira Pampa",       "fec", (85, 110, 100, 100, 65), "ROBX", "XO", (3, 0)),
-    ("Capela Rosilha",   "arr", (101, 84, 96, 90, 79), "BXOR", "XR", (1, 0)),
-    ("Antares Zaina",    "pon", (107, 78, 106, 86, 73), "XBRR", "BX", (0, 1)),
-    ("Shaula Lobuna",    "fec", (90, 105, 95, 110, 75), "ROBX", "BX", (3, 1)),
+    ("Lira",       "pon", (110, 95, 90, 80, 70),  "BXBR", "XO", (1, 0)),
+    ("Nashira", "per", (105, 95, 85, 85, 100), "OBXB", "XO", (2, 0)),
+    ("Mira",       "fec", (85, 110, 100, 100, 65), "ROBX", "XO", (3, 0)),
+    ("Capela",   "arr", (101, 84, 96, 90, 79), "BXOR", "XR", (1, 0)),
+    ("Antares",    "pon", (107, 78, 106, 86, 73), "XBRR", "BX", (0, 1)),
+    ("Shaula",    "fec", (90, 105, 95, 110, 75), "ROBX", "BX", (3, 1)),
 ]
 NOMES = ["Altair", "Spica", "Adara", "Alcione", "Electra", "Maia", "Mérope", "Celeno", "Bellatrix",
          "Mintaka", "Andrômeda", "Cassiopeia", "Carina", "Vela", "Auriga", "Columba", "Fênix", "Hidra",
          "Tucana", "Corona", "Zaniah", "Alya", "Alhena", "Mizar", "Alcor", "Dubhe", "Deneb", "Albireo",
          "Achernar", "Mimosa", "Hamal", "Mirach", "Almach", "Nunki", "Ankaa", "Zosma", "Elnath", "Saiph",
          "Naos", "Avior", "Atria", "Alnair"]
-# sobrenomes das 6 do MVP e das rivais (Moura, Baia) ficam reservados
+# pelagens: os nomes não têm mais sobrenome, mas elas ainda servem de semente dos perfis
 PELAGENS = ["Castanha", "Gateada", "Ruana", "Oveira", "Melada", "Tobiana", "Douradilha", "Picaça",
             "Preta", "Branca", "Tostada", "Sebruna", "Colorada", "Malacara", "Pangaré", "Bragada"]
 
@@ -62,9 +62,11 @@ def gerar():
                 if tuple(g["casa"]) == (d, p):
                     vagas.remove(g["estilo"])
             for st in vagas:
-                nome = f"{next(nomes)} {PELAGENS[pel % len(PELAGENS)]}"
+                nome = next(nomes)
+                # a semente do perfil ainda usa o nome antigo com a pelagem, para os
+                # atributos continuarem os mesmos de antes da retirada dos sobrenomes
+                rnd = random.Random(f"{nome} {PELAGENS[pel % len(PELAGENS)]}")
                 pel += 1
-                rnd = random.Random(nome)
                 at = perfil(d, st, rnd)
                 for k, v in AJUSTES.get(nome.split()[0], {}).items():
                     at[KEYS.index(k)] += v

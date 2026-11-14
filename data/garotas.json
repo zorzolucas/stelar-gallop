@@ -1,6 +1,6 @@
 [
  {
-  "nome": "Lira Alazã",
+  "nome": "Lira",
   "estilo": "pon",
   "atributos": {
    "vel": 110,
@@ -24,7 +24,7 @@
   "mvp": true
  },
  {
-  "nome": "Nashira Tordilha",
+  "nome": "Nashira",
   "estilo": "per",
   "atributos": {
    "vel": 105,
@@ -48,7 +48,7 @@
   "mvp": true
  },
  {
-  "nome": "Mira Pampa",
+  "nome": "Mira",
   "estilo": "fec",
   "atributos": {
    "vel": 85,
@@ -72,7 +72,7 @@
   "mvp": true
  },
  {
-  "nome": "Capela Rosilha",
+  "nome": "Capela",
   "estilo": "arr",
   "atributos": {
    "vel": 101,
@@ -96,7 +96,7 @@
   "mvp": true
  },
  {
-  "nome": "Antares Zaina",
+  "nome": "Antares",
   "estilo": "pon",
   "atributos": {
    "vel": 107,
@@ -120,7 +120,7 @@
   "mvp": true
  },
  {
-  "nome": "Shaula Lobuna",
+  "nome": "Shaula",
   "estilo": "fec",
   "atributos": {
    "vel": 90,
@@ -144,7 +144,7 @@
   "mvp": true
  },
  {
-  "nome": "Altair Castanha",
+  "nome": "Altair",
   "estilo": "pon",
   "atributos": {
    "vel": 110,
@@ -168,7 +168,7 @@
   "mvp": false
  },
  {
-  "nome": "Spica Gateada",
+  "nome": "Spica",
   "estilo": "per",
   "atributos": {
    "vel": 108,
@@ -192,7 +192,7 @@
   "mvp": false
  },
  {
-  "nome": "Adara Ruana",
+  "nome": "Adara",
   "estilo": "arr",
   "atributos": {
    "vel": 108,
@@ -216,7 +216,7 @@
   "mvp": false
  },
  {
-  "nome": "Alcione Oveira",
+  "nome": "Alcione",
   "estilo": "fec",
   "atributos": {
    "vel": 111,
@@ -240,7 +240,7 @@
   "mvp": false
  },
  {
-  "nome": "Electra Melada",
+  "nome": "Electra",
   "estilo": "pon",
   "atributos": {
    "vel": 115,
@@ -264,7 +264,7 @@
   "mvp": false
  },
  {
-  "nome": "Maia Tobiana",
+  "nome": "Maia",
   "estilo": "arr",
   "atributos": {
    "vel": 108,
@@ -288,7 +288,7 @@
   "mvp": false
  },
  {
-  "nome": "Mérope Douradilha",
+  "nome": "Mérope",
   "estilo": "per",
   "atributos": {
    "vel": 107,
@@ -312,7 +312,7 @@
   "mvp": false
  },
  {
-  "nome": "Celeno Picaça",
+  "nome": "Celeno",
   "estilo": "arr",
   "atributos": {
    "vel": 108,
@@ -336,7 +336,7 @@
   "mvp": false
  },
  {
-  "nome": "Bellatrix Preta",
+  "nome": "Bellatrix",
   "estilo": "fec",
   "atributos": {
    "vel": 113,
@@ -360,7 +360,7 @@
   "mvp": false
  },
  {
-  "nome": "Mintaka Branca",
+  "nome": "Mintaka",
   "estilo": "pon",
   "atributos": {
    "vel": 110,
@@ -384,7 +384,7 @@
   "mvp": false
  },
  {
-  "nome": "Andrômeda Tostada",
+  "nome": "Andrômeda",
   "estilo": "arr",
   "atributos": {
    "vel": 103,
@@ -408,7 +408,7 @@
   "mvp": false
  },
  {
-  "nome": "Cassiopeia Sebruna",
+  "nome": "Cassiopeia",
   "estilo": "per",
   "atributos": {
    "vel": 105,
@@ -432,7 +432,7 @@
   "mvp": false
  },
  {
-  "nome": "Carina Colorada",
+  "nome": "Carina",
   "estilo": "fec",
   "atributos": {
    "vel": 107,
@@ -456,7 +456,7 @@
   "mvp": false
  },
  {
-  "nome": "Vela Malacara",
+  "nome": "Vela",
   "estilo": "per",
   "atributos": {
    "vel": 106,
@@ -480,7 +480,7 @@
   "mvp": false
  },
  {
-  "nome": "Auriga Pangaré",
+  "nome": "Auriga",
   "estilo": "arr",
   "atributos": {
    "vel": 101,
@@ -504,7 +504,7 @@
   "mvp": false
  },
  {
-  "nome": "Columba Bragada",
+  "nome": "Columba",
   "estilo": "pon",
   "atributos": {
    "vel": 104,
@@ -528,7 +528,7 @@
   "mvp": false
  },
  {
-  "nome": "Fênix Castanha",
+  "nome": "Fênix",
   "estilo": "per",
   "atributos": {
    "vel": 100,
@@ -552,7 +552,7 @@
   "mvp": false
  },
  {
-  "nome": "Hidra Gateada",
+  "nome": "Hidra",
   "estilo": "arr",
   "atributos": {
    "vel": 104,
@@ -576,7 +576,7 @@
   "mvp": false
  },
  {
-  "nome": "Tucana Ruana",
+  "nome": "Tucana",
   "estilo": "fec",
   "atributos": {
    "vel": 104,
@@ -600,7 +600,7 @@
   "mvp": false
  },
  {
-  "nome": "Corona Oveira",
+  "nome": "Corona",
   "estilo": "per",
   "atributos": {
    "vel": 108,
@@ -624,7 +624,7 @@
   "mvp": false
  },
  {
-  "nome": "Zaniah Melada",
+  "nome": "Zaniah",
   "estilo": "arr",
   "atributos": {
    "vel": 99,
@@ -648,7 +648,7 @@
   "mvp": false
  },
  {
-  "nome": "Alya Tobiana",
+  "nome": "Alya",
   "estilo": "pon",
   "atributos": {
    "vel": 95,
@@ -672,7 +672,7 @@
   "mvp": false
  },
  {
-  "nome": "Alhena Douradilha",
+  "nome": "Alhena",
   "estilo": "arr",
   "atributos": {
    "vel": 87,
@@ -696,7 +696,7 @@
   "mvp": false
  },
  {
-  "nome": "Mizar Picaça",
+  "nome": "Mizar",
   "estilo": "fec",
   "atributos": {
    "vel": 97,
@@ -720,7 +720,7 @@
   "mvp": false
  },
  {
-  "nome": "Alcor Preta",
+  "nome": "Alcor",
   "estilo": "per",
   "atributos": {
    "vel": 95,
@@ -744,7 +744,7 @@
   "mvp": false
  },
  {
-  "nome": "Dubhe Branca",
+  "nome": "Dubhe",
   "estilo": "fec",
   "atributos": {
    "vel": 99,
@@ -768,7 +768,7 @@
   "mvp": false
  },
  {
-  "nome": "Deneb Tostada",
+  "nome": "Deneb",
   "estilo": "pon",
   "atributos": {
    "vel": 98,
@@ -792,7 +792,7 @@
   "mvp": false
  },
  {
-  "nome": "Albireo Sebruna",
+  "nome": "Albireo",
   "estilo": "per",
   "atributos": {
    "vel": 92,
@@ -816,7 +816,7 @@
   "mvp": false
  },
  {
-  "nome": "Achernar Colorada",
+  "nome": "Achernar",
   "estilo": "arr",
   "atributos": {
    "vel": 92,
@@ -840,7 +840,7 @@
   "mvp": false
  },
  {
-  "nome": "Mimosa Malacara",
+  "nome": "Mimosa",
   "estilo": "fec",
   "atributos": {
    "vel": 97,
@@ -864,7 +864,7 @@
   "mvp": false
  },
  {
-  "nome": "Hamal Pangaré",
+  "nome": "Hamal",
   "estilo": "per",
   "atributos": {
    "vel": 91,
@@ -888,7 +888,7 @@
   "mvp": false
  },
  {
-  "nome": "Mirach Bragada",
+  "nome": "Mirach",
   "estilo": "fec",
   "atributos": {
    "vel": 98,
@@ -912,7 +912,7 @@
   "mvp": false
  },
  {
-  "nome": "Almach Castanha",
+  "nome": "Almach",
   "estilo": "pon",
   "atributos": {
    "vel": 86,
@@ -936,7 +936,7 @@
   "mvp": false
  },
  {
-  "nome": "Nunki Gateada",
+  "nome": "Nunki",
   "estilo": "per",
   "atributos": {
    "vel": 85,
@@ -960,7 +960,7 @@
   "mvp": false
  },
  {
-  "nome": "Ankaa Ruana",
+  "nome": "Ankaa",
   "estilo": "arr",
   "atributos": {
    "vel": 80,
@@ -984,7 +984,7 @@
   "mvp": false
  },
  {
-  "nome": "Zosma Oveira",
+  "nome": "Zosma",
   "estilo": "fec",
   "atributos": {
    "vel": 87,
@@ -1008,7 +1008,7 @@
   "mvp": false
  },
  {
-  "nome": "Elnath Melada",
+  "nome": "Elnath",
   "estilo": "pon",
   "atributos": {
    "vel": 87,
@@ -1032,7 +1032,7 @@
   "mvp": false
  },
  {
-  "nome": "Saiph Tobiana",
+  "nome": "Saiph",
   "estilo": "pon",
   "atributos": {
    "vel": 89,
@@ -1056,7 +1056,7 @@
   "mvp": false
  },
  {
-  "nome": "Naos Douradilha",
+  "nome": "Naos",
   "estilo": "per",
   "atributos": {
    "vel": 85,
@@ -1080,7 +1080,7 @@
   "mvp": false
  },
  {
-  "nome": "Avior Picaça",
+  "nome": "Avior",
   "estilo": "arr",
   "atributos": {
    "vel": 82,
@@ -1104,7 +1104,7 @@
   "mvp": false
  },
  {
-  "nome": "Atria Preta",
+  "nome": "Atria",
   "estilo": "fec",
   "atributos": {
    "vel": 91,
@@ -1128,7 +1128,7 @@
   "mvp": false
  },
  {
-  "nome": "Alnair Branca",
+  "nome": "Alnair",
   "estilo": "pon",
   "atributos": {
    "vel": 85,

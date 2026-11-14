@@ -18,7 +18,7 @@
 **Motor:** Godot 4, GDScript.
 **Idioma:** PT-BR, com os textos fora do código para tradução futura.
 
-**Identidade:** universo, academia/liga, personagens, arte, UI e música são **originais**. Nenhuma personagem usa nome de cavalo de corrida real nem é baseada em personagens de outros jogos. Os nomes juntam uma **estrela ou constelação** com uma **pelagem** (ex.: Lira Alazã, Shaula Lobuna).
+**Identidade:** universo, academia/liga, personagens, arte, UI e música são **originais**. Nenhuma personagem usa nome de cavalo de corrida real nem é baseada em personagens de outros jogos. Cada garota tem só o nome de uma **estrela ou constelação**, sem sobrenome (ex.: Lira, Shaula).
 
 ## 2. Loop principal
 

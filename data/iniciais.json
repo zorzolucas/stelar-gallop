@@ -1,6 +1,6 @@
 [
   {
-    "nome": "Lira Alazã",
+    "nome": "Lira",
     "apelido": "a chama da largada",
     "descricao": "Competitiva e barulhenta. Lidera desde a largada.",
     "naturais": [
@@ -14,7 +14,7 @@
     "inicial": true
   },
   {
-    "nome": "Nashira Tordilha",
+    "nome": "Nashira",
     "apelido": "a estrategista",
     "descricao": "Calma e observadora. Corre logo atrás do grupo da frente.",
     "naturais": [
@@ -28,7 +28,7 @@
     "inicial": true
   },
   {
-    "nome": "Mira Pampa",
+    "nome": "Mira",
     "apelido": "a última a sair, a primeira a chegar",
     "descricao": "Paciente. Larga no fundo e faz um sprint brutal no final.",
     "naturais": [
@@ -42,7 +42,7 @@
     "inicial": true
   },
   {
-    "nome": "Capela Rosilha",
+    "nome": "Capela",
     "apelido": "a estrela do palco",
     "descricao": "Carismática e vaidosa. Fica no meio do pelotão e acelera na reta.",
     "naturais": [
@@ -56,7 +56,7 @@
     "inicial": false
   },
   {
-    "nome": "Antares Zaina",
+    "nome": "Antares",
     "apelido": "a pancada",
     "descricao": "Direta e durona. Sai como um tiro na largada.",
     "naturais": [
@@ -70,7 +70,7 @@
     "inicial": false
   },
   {
-    "nome": "Shaula Lobuna",
+    "nome": "Shaula",
     "apelido": "a sombra",
     "descricao": "Sarcástica e teimosa. Nunca desiste no fim da corrida.",
     "naturais": [
